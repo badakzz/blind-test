@@ -1,14 +1,15 @@
-import Link from 'next/link'
-import { FunctionComponent } from 'react'
-import Layout from '../components/Layout'
+import { NextPage } from 'next'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
 
-const IndexPage: FunctionComponent<{}> = () => (
-    <Layout title="Home | Next.js + TypeScript Example">
-        <h1>Hello Next.js 👋</h1>
-        <p>
-            <Link href="/about">About</Link>
-        </p>
-    </Layout>
-)
+const Index: NextPage = () => {
+    // const router = useRouter()
 
-export default IndexPage
+    // useEffect(() => {
+    //     router.push('/views/home')
+    // }, [])
+
+    return <>xddd</>
+}
+
+export default Index
