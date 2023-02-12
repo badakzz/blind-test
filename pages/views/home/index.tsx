@@ -14,9 +14,7 @@ const Home = () => {
             </p>
             <div>
                 <Button>Play</Button>
-                <Link href="/login">
-                    <a>Not a member? Sign up now!</a>
-                </Link>
+                <Link href="/login">Not a member? Sign up now</Link>
             </div>
         </div>
         // </Layout>
