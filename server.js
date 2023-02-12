@@ -19,6 +19,7 @@ io.on('connection', (socket) => {
         users.push(user)
         io.emit('userConnected', user)
         io.emit('users', users)
+        console.log('joinRoom')
     })
 
     socket.on('disconnect', () => {
