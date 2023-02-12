@@ -15,6 +15,10 @@ const Home = () => {
             <div>
                 <Button>Play</Button>
                 <Link href="/login">Not a member? Sign up now</Link>
+                <p>
+                    Or, join a <Link href="chat/chatroom">chat room</Link> and
+                    talk with your friends!
+                </p>
             </div>
         </div>
         // </Layout>
