@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react'
-import { io } from 'socket.io-client'
+import React, { useState, useEffect } from "react"
+import { io } from "socket.io-client"
+
+const socket = io("http://localhost:3001")
 
 const Chatroom = () => {
     const [messages, setMessages] = useState([])
-    const [message, setMessage] = useState('')
-    const [chosenUsername, setChosenUsername] = useState('')
-
-    const socket = io('http://localhost:3001')
-
+    const [message, setMessage] = useState("")
+    const [username, setUsername] = useState("")
+    const [users, setUsers] = useState([])
+    const [validatedUsername, setValidatedUsername] = useState(false)
     useEffect(() => {
-        const username = prompt('Please enter your username')
-        setChosenUsername(username)
-        socket.emit('joinRoom', username)
-
-        socket.on('chatMessage', (msg) => {
+        socket.on("chatMessage", (msg) => {
             setMessages((currentMsg) => [...currentMsg, msg])
+        })
+
+        socket.on("users", (users) => {
+            setUsers(users)
         })
 
         return () => {
@@ -23,12 +24,18 @@ const Chatroom = () => {
     }, [])
 
     const sendMessage = () => {
-        socket.emit('chatMessage', message)
-        setMessages((currentMsg) => [
-            ...currentMsg,
-            { author: chosenUsername, message },
-        ])
-        setMessage('')
+        if (message) {
+            socket.emit("chatMessage", message)
+            setMessage("")
+        }
+    }
+
+    const handleJoinRoom = () => {
+        if (username) {
+            setValidatedUsername(true)
+            console.log("username", username)
+            socket.emit("joinRoom", username)
+        }
     }
 
     return (
@@ -42,12 +49,30 @@ const Chatroom = () => {
                     </div>
                 ))}
             </div>
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send</button>
+            {validatedUsername ? (
+                <div>
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <button onClick={sendMessage}>Send</button>
+                </div>
+            ) : (
+                <div>
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => {
+                            setUsername(e.target.value)
+                        }}
+                    />
+                    <button onClick={handleJoinRoom}>Join room</button>
+                </div>
+            )}
+            <div>
+                Users online: {users.map((user) => user.username).join(", ")}
+            </div>
         </div>
     )
 }
