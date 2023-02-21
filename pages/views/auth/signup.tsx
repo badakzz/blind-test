@@ -78,7 +78,6 @@ const Register = () => {
             password?: string
         } = {}
 
-        data.csrfToken = csrfToken
         if (lastname) {
             data.lastname = lastname
         }
