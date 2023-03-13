@@ -1,5 +1,5 @@
-import { createUser } from "../../../controllers/users"
-import userSchema from "../../../controllers/validation/userSchema"
+import { createUser } from "../../../../controllers/users"
+import userSchema from "../../../../controllers/validation/userSchema"
 
 export default async function handler(req, res) {
     if (req.method === "POST") {

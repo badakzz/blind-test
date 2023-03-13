@@ -11,7 +11,7 @@ const Button: ForwardRefExoticComponent<Props> = React.forwardRef(
     ({ isLoading, LeftIcon, RightIcon, children, ...restOfProps }, ref) => (
         <RBButton
             {...restOfProps}
-            ref={ref}
+            // ref={ref}
             className={`${
                 restOfProps?.className || ""
             } d-flex align-items-center justify-content-center`}

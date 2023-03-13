@@ -8,7 +8,7 @@ exports.up = function (knex) {
         table.timestamps(true, true)
     })
 }
-
+console.log('bbbb')
 exports.down = function (knex) {
     return knex.schema.dropTable("users")
 }

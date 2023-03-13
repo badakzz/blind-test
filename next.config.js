@@ -1,7 +1,14 @@
 // const path = require('path')
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
-
+module.exports = {
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback.fs = false;
+    }
+    return config;
+  },
+}
 // module.exports = {
 //     async redirects() {
 //         return [
