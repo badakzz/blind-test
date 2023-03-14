@@ -1,32 +1,47 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { hash } from "bcryptjs";
-import knex from "../models/knex";
+import { NextApiRequest, NextApiResponse } from 'next';
+import Knex from 'knex';
+import bcrypt from 'bcryptjs';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method === "POST") {
-    const { username, email, password } = req.body;
-
-    const hashedPassword = await hash(password, 10);
-
-    try {
-      const insertResult = await knex("users").insert({
-        user_name: username,
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+  }
+  
+  interface CreateUserRequest {
+    username: string;
+    email: string;
+    password: string;
+  }
+  
+  interface CreateUserResponse {
+    message: string;
+  }
+  
+  export async function createUser({
+    req,
+    res,
+  }: {
+    req: NextApiRequest;
+    res: NextApiResponse<CreateUserResponse>;
+  }): Promise<void> {
+    const { username, email, password } = req.body as CreateUserRequest;
+  
+    if (!username || !email || !password) {
+      throw new Error('Username, email, and password are required');
+    }
+  
+    const hashedPassword = await bcrypt.hash(password, 10);
+  
+    const user: User = await Knex('users')
+      .insert({
+        username,
         email,
         password: hashedPassword,
-        permissions: 1,
-      });
-
-      const userId = insertResult[0];
-
-      return res.status(201).json({ success: true, userId });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Failed to create user" });
-    }
-  } else {
-    return res.status(405).json({ error: "Method not allowed" });
+      })
+      .returning('*')
+      .then((rows) => rows[0]);
+  
+    res.status(201).json({ message: 'User created successfully' });
   }
-}
