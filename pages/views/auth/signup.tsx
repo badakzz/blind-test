@@ -4,20 +4,20 @@ import Button from "../components/Button"
 import { FaSave } from 'react-icons/fa'
 import { Formik } from 'formik'
 import { useToastContext } from "../components/ToastProvider"
-import { useRouter } from "next/router"
-import { useState } from "react"
+import router, { useRouter } from "next/router"
 import axios from 'axios'
 import { isEmailValid, isPasswordValid, getPasswordRuleLabel } from '../../../utils/helpers'
+import { useState } from 'react';
 
-const Register = () => {
-    const router = useRouter()
-    const [profile, setProfile] = useState({
-        firstname: '',
-        lastname: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-    })
+// const Register = () => {
+//     const router = useRouter()
+//     const [profile, setProfile] = useState({
+//         firstname: '',
+//         lastname: '',
+//         email: '',
+//         password: '',
+//         confirmPassword: '',
+//     })
 
 //     const { showErrorToast } = useToastContext()
 
@@ -321,6 +321,40 @@ const Register = () => {
 // </Container>
 // </div>
 //     )
+
+ const Signup = () => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, email, password })
+    });
+
+    if (res.ok) {
+      // Redirect to success page
+      router.push('/success');
+    } else {
+      // Handle error
+      const { message } = await res.json();
+      alert(message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+      <button type="submit">Signup</button>
+    </form>
+  );
 }
 
-export default Register
+export default Signup

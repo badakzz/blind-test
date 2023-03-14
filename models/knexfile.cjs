@@ -1,7 +1,7 @@
 const path = require('path');
 // require('dotenv').config({ path: './env/local.env' });
 
-require('dotenv').config({ path: './env/local.env' });
+require('dotenv').config({ path: '../.env' });
 
 module.exports = {
   development: {
@@ -11,7 +11,7 @@ module.exports = {
       port: process.env.POSTGRES_PORT,
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_NAME
+      database: process.env.POSTGRES_DATABASE
     },
     migrations: {
       directory: path.join(__dirname, 'db', 'migrations')
