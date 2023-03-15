@@ -2,8 +2,8 @@
     "name": "blind-test",
     "private": true,
     "workspaces": [
-        "packages/*",
-        "packages/server"
+        "src/*",
+        "src/server"
       ],
     "scripts": {
       "dev:client": "yarn workspace @blind-test/client dev",
