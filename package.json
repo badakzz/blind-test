@@ -30,7 +30,7 @@
     "scripts": {
         "dev": "next dev",
         "all": "concurrently \"yarn next dev\" \"yarn start:socket\"",
-        "start:socket": "node ./src/server/server.js",
+        "start:socket": "node ./server/server.js",
         "build": "next build",
         "start": "next start",
         "type-check": "tsc",
