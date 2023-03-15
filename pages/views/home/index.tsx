@@ -4,27 +4,29 @@ import { Button } from "react-bootstrap"
 
 const Home = () => {
     return (
-        // <Layout>
-        <div>
-            <h1>Play Blind-Test with your friends using Spotify playlist!</h1>
-            <p>
-                Welcome to our Blind-Test game! You can start playing right away
-                without logging in. However, if you want to use your own
-                playlists and make it more fun, log in and enjoy!
-            </p>
+        <Layout>
             <div>
-                <Button>Play</Button>
-                <Link href="/login">Not a member? Sign up now</Link>
+                <h1>
+                    Play Blind-Test with your friends using Spotify playlist!
+                </h1>
                 <p>
-                    Or, join a <Link href="chat/chatroom">chat room</Link> and
-                    talk with your friends!
+                    Welcome to our Blind-Test game! You can start playing right
+                    away without logging in. However, if you want to use your
+                    own playlists and make it more fun, log in and enjoy!
                 </p>
-                <p>
-                    Or, join a <Link href="auth/signup">Sign up</Link>
-                </p>
+                <div>
+                    <Button>Play</Button>
+                    <Link href="/login">Not a member? Sign up now</Link>
+                    <p>
+                        Or, join a <Link href="chat/chatroom">chat room</Link>{" "}
+                        and talk with your friends!
+                    </p>
+                    <p>
+                        Or, join a <Link href="auth/signup">Sign up</Link>
+                    </p>
+                </div>
             </div>
-        </div>
-        // </Layout>
+        </Layout>
     )
 }
 

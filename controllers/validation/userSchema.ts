@@ -1,10 +1,11 @@
 const Joi = require("joi")
 
 const userSchema = Joi.object({
-    username: Joi.string().alphanum().min(3).max(30).required(),
+    user_name: Joi.string().alphanum().min(3).max(30).required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    status: Joi.string().valid("active", "inactive").required(),
+    permissions: Joi.number().min(1).max(1).optional(),
+    is_active: Joi.boolean().optional(),
 })
 
 export default userSchema

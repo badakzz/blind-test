@@ -2,12 +2,16 @@
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
 module.exports = {
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback.fs = false;
-    }
-    return config;
-  },
+    webpack: (config, { isServer }) => {
+        if (!isServer) {
+            config.resolve.fallback.fs = false
+        }
+        return config
+    },
+    publicRuntimeConfig: {
+        // Define the environment variable with the path to your images folder
+        imageFolder: "/img",
+    },
 }
 // module.exports = {
 //     async redirects() {
