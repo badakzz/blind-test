@@ -1,8 +1,6 @@
 import '../styles/theme.scss'
 import type { AppProps } from 'next/app'
-import { SessionProvider } from 'next-auth/react'
-import { SSRProvider } from 'react-bootstrap'
-import { QueryClient, QueryClientProvider } from 'react-query'
+// import { SessionProvider } from 'next-auth/react'
 
 // Create a client
 // const queryClient = new QueryClient({})
