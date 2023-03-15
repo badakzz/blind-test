@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import Layout from '../components/Layout'
-import { Button } from 'react-bootstrap'
+import Link from "next/link"
+import Layout from "../components/Layout"
+import { Button } from "react-bootstrap"
 
 const Home = () => {
     return (
@@ -18,6 +18,9 @@ const Home = () => {
                 <p>
                     Or, join a <Link href="chat/chatroom">chat room</Link> and
                     talk with your friends!
+                </p>
+                <p>
+                    Or, join a <Link href="auth/signup">Sign up</Link>
                 </p>
             </div>
         </div>

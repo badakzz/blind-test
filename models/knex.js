@@ -1,10 +1,8 @@
-const dotenv = require('dotenv');
-console.log('ccc')
-dotenv.config({ path: './env/local.env' });
+const dotenv = require("dotenv")
+// dotenv.config({ path: "../env/local.env" })
+dotenv.config({ path: "../.env" })
 
-const knexfile = require("./knexfilec")
+const knexfile = require("./knexfile")
 const knex = require("knex")(knexfile[process.env.NODE_ENV || "local"])
 
-console.log('aaaa', typeof process.env.POSTGRES_PASSWORD, process.env.POSTGRES_PASSWORD);
-
-module.exports = knex;
+module.exports = knex
