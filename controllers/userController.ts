@@ -79,7 +79,7 @@ export async function loginUser({
 
     const { identifier, password } = value
 
-    // Check if the identifier is a valid email or username
+    // Query the user by identifier only (either email or username)
     const user = await Knex("users")
         .where(function () {
             if (isEmailValid(identifier)) {
@@ -88,12 +88,20 @@ export async function loginUser({
                 this.where("user_name", identifier)
             }
         })
-        .andWhere({ password: password })
         .first()
 
     if (!user) {
-        // Handle error
-        res.status(401).json({ message: "Invalid email or password" })
+        // Handle error: identifier not found
+        res.status(401).json({ message: "Invalid identifier" })
+        return
+    }
+
+    // Compare the provided password with the stored hashed password
+    const isPasswordCorrect = await bcrypt.compare(password, user.password)
+
+    if (!isPasswordCorrect) {
+        // Handle error: password is incorrect
+        res.status(401).json({ message: "Invalid password" })
         return
     }
 

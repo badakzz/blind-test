@@ -1,6 +1,11 @@
 // const path = require('path')
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
+const dotenv = require("dotenv")
+
+dotenv.config({ path: "config/env/.env.secrets" })
+dotenv.config({ path: "config/env/local.env" })
+
 module.exports = {
     webpack: (config, { isServer }) => {
         if (!isServer) {
@@ -12,6 +17,10 @@ module.exports = {
         // Define the environment variable with the path to your images folder
         imageFolder: "/img",
     },
+
+    // Load .env.secrets file
+
+    // Rest of your next.config.js content
 }
 // module.exports = {
 //     async redirects() {
