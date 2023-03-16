@@ -23,6 +23,13 @@ interface SessionData {
     }
 }
 
+interface SessionData {
+    user: {
+        id: string
+        email: string
+    }
+}
+
 export async function createUser({
     req,
     res,
