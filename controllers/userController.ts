@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import Knex from "../models/knex"
 import bcrypt from "bcryptjs"
-import userSchema from "./validation/userSchema"
+import { userSignupSchema, userLoginSchema } from "./validation/userSchema"
+import { isEmailValid } from "../utils/helpers/emailHelper"
 
 interface User {
     id: number
@@ -11,17 +12,15 @@ interface User {
     permissions: number
     is_active: boolean
 }
-
-interface CreateUserRequest {
-    user_name: string
-    email: string
-    password: string
-    permissions: number
-    is_active: boolean
-}
-
 interface CreateUserResponse {
     message: string
+}
+
+interface SessionData {
+    user: {
+        id: string
+        email: string
+    }
 }
 
 export async function createUser({
@@ -31,7 +30,7 @@ export async function createUser({
     req: NextApiRequest
     res: NextApiResponse<CreateUserResponse>
 }): Promise<void> {
-    const { error, value } = userSchema.validate(req.body, {
+    const { error, value } = userSignupSchema.validate(req.body, {
         abortEarly: false,
     })
     if (error) {
@@ -46,19 +45,6 @@ export async function createUser({
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const query = Knex("users")
-        .insert({
-            user_name,
-            email,
-            password: hashedPassword,
-            permissions: 1,
-            is_active: true,
-        })
-        .into("users")
-        .returning("*")
-
-    console.log(query.toSQL())
-
     const user: User = await Knex("users")
         .insert({
             user_name,
@@ -71,4 +57,47 @@ export async function createUser({
         .then((rows) => rows[0])
 
     res.status(201).json({ message: "User created successfully" })
+}
+
+export async function loginUser({
+    req,
+    res,
+}: {
+    req: NextApiRequest & { session?: SessionData }
+    res: NextApiResponse<CreateUserResponse>
+}): Promise<void> {
+    const { error, value } = userLoginSchema.validate(req.body, {
+        abortEarly: false,
+    })
+    if (error) {
+        res.status(400).json({
+            message: error.details.map((detail) => detail.message),
+        })
+        console.log(error)
+        return
+    }
+
+    const { identifier, password } = value
+
+    // Check if the identifier is a valid email or username
+    const user = await Knex("users")
+        .where(function () {
+            if (isEmailValid(identifier)) {
+                this.where("email", identifier)
+            } else {
+                this.where("user_name", identifier)
+            }
+        })
+        .andWhere({ password: password })
+        .first()
+
+    if (!user) {
+        // Handle error
+        res.status(401).json({ message: "Invalid email or password" })
+        return
+    }
+
+    // Set the session cookie
+    req.session.user = { id: user.id, email: user.email }
+    res.status(200).json({ message: "Logged in successfully" })
 }
