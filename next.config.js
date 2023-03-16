@@ -3,8 +3,8 @@
 // // const withTM = require('next-transpile-modules')
 const dotenv = require("dotenv")
 
-dotenv.config({ path: "config/env/.env.secrets" })
-dotenv.config({ path: "config/env/local.env" })
+dotenv.config({ path: "env/.secrets.env" })
+dotenv.config({ path: "env/local.env" })
 
 module.exports = {
     webpack: (config, { isServer }) => {
