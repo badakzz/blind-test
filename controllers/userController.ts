@@ -3,29 +3,15 @@ import Knex from "../models/knex"
 import bcrypt from "bcryptjs"
 import { userSignupSchema, userLoginSchema } from "./validation/userSchema"
 import { isEmailValid } from "../utils/helpers/emailHelper"
+import { User } from "../utils/types"
 
-interface User {
-    id: number
-    user_name: string
-    email: string
-    password: string
-    permissions: number
-    is_active: boolean
-}
 interface CreateUserResponse {
     message: string
 }
 
 interface SessionData {
     user: {
-        id: string
-        email: string
-    }
-}
-
-interface SessionData {
-    user: {
-        id: string
+        id: number
         email: string
     }
 }
@@ -86,6 +72,21 @@ export async function loginUser({
 
     const { identifier, password } = value
 
+    try {
+        const user = await authenticateUser(identifier, password)
+
+        // Set the session cookie
+        req.session.user = { id: user.id, email: user.email }
+        res.status(200).json({ message: "Logged in successfully" })
+    } catch (error) {
+        res.status(401).json({ message: error.message })
+    }
+}
+
+export async function authenticateUser(
+    identifier: string,
+    password: string
+): Promise<{ id: number; email: string; username: string }> {
     // Query the user by identifier only (either email or username)
     const user = await Knex("users")
         .where(function () {
@@ -97,10 +98,10 @@ export async function loginUser({
         })
         .first()
 
+    console.log("controller", user)
     if (!user) {
         // Handle error: identifier not found
-        res.status(401).json({ message: "Invalid identifier" })
-        return
+        throw new Error("Invalid identifier")
     }
 
     // Compare the provided password with the stored hashed password
@@ -108,11 +109,9 @@ export async function loginUser({
 
     if (!isPasswordCorrect) {
         // Handle error: password is incorrect
-        res.status(401).json({ message: "Invalid password" })
-        return
+        throw new Error("Invalid password")
     }
 
-    // Set the session cookie
-    req.session.user = { id: user.id, email: user.email }
-    res.status(200).json({ message: "Logged in successfully" })
+    // Return the user object with the username
+    return { id: user.user_id, email: user.email, username: user.user_name }
 }
