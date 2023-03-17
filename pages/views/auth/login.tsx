@@ -1,7 +1,6 @@
 import { useState, FormEvent } from "react"
 import { useRouter } from "next/router"
 import Layout from "../components/Layout"
-import { signIn } from "next-auth/react"
 
 const Login = () => {
     const [identifier, setIdentifier] = useState("")
@@ -10,20 +9,27 @@ const Login = () => {
 
     const router = useRouter()
 
+    const login = async (identifier, password) => {
+        const response = await fetch("/api/v1/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ identifier, password }),
+        })
+
+        if (response.ok) {
+            router.push("/views/home")
+        } else {
+            // Handle login errors
+            setError("Invalid credentials")
+        }
+    }
+
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault()
         try {
-            const result = await signIn("credentials", {
-                redirect: false,
-                identifier,
-                password,
-            })
-
-            if (!result.error) {
-                router.push("/views/home")
-            } else {
-                // Handle login errors
-            }
+            await login(identifier, password)
         } catch (error) {
             setError(error)
         }

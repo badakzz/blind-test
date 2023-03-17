@@ -5,16 +5,17 @@ import { Navbar, Container, Nav, NavDropdown, Image } from "react-bootstrap"
 import { FaSignOutAlt, FaPlayCircle } from "react-icons/fa"
 import getConfig from "next/config"
 import { GetServerSideProps } from "next"
+import { User } from "../../../utils/types/UserType"
 
 const { publicRuntimeConfig } = getConfig()
 
 type Props = {
     children?: ReactNode
     title?: string
-    user?: any
+    user?: User
 }
 
-const NavigationBar = ({ user, children }: Props) => {
+const Layout = ({ user, children }: Props) => {
     const handleLogout = async () => {
         // Send a logout request to the server
     }
@@ -47,7 +48,7 @@ const NavigationBar = ({ user, children }: Props) => {
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
                         <NavDropdown
-                            title={user?.name ? user.name : "User"}
+                            title={user?.username ? user.username : "User"}
                             id="collasible-nav-dropdown"
                         >
                             <NavDropdown.Item href="#action/3.1">
@@ -77,4 +78,4 @@ const NavigationBar = ({ user, children }: Props) => {
     )
 }
 
-export default NavigationBar
+export default Layout
