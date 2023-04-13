@@ -16,7 +16,7 @@ type Props = {
     user?: User
 }
 
-const Layout = ({ user, children }: Props) => {
+const Layout: React.FC<Props> = ({ user, children }) => {
     const router = useRouter()
 
     const handleLogout = async () => {

@@ -2,7 +2,7 @@ import { useState, FormEvent } from "react"
 import { useRouter } from "next/router"
 import Layout from "../components/Layout"
 
-const Login = () => {
+const Login: React.FC = () => {
     const [identifier, setIdentifier] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState(null)
@@ -36,7 +36,7 @@ const Login = () => {
     }
 
     return (
-        <Layout>
+        <>
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
@@ -53,7 +53,7 @@ const Login = () => {
                 <button type="submit">Login</button>
             </form>
             {error && <div className="text-danger">{error}</div>}
-        </Layout>
+        </>
     )
 }
 
