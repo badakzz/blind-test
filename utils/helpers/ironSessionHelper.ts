@@ -7,7 +7,7 @@ import { SessionOptions } from "next-iron-session"
 // console.log("SECRET_COOKIE_PASSWORD:", process.env.SECRET_COOKIE_PASSWORD)
 // console.log("NODE_ENV:", process.env.NODE_ENV)
 export const IRON_SESSION_CONFIG: SessionOptions = {
-    password: process.env.SECRET_COOKIE_PASSWORD,
+    password: process.env.COOKIE_PASSWORD,
     cookieName: process.env.COOKIE_NAME,
     cookieOptions: {
         secure: process.env.NODE_ENV === "production",

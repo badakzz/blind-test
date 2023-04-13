@@ -17,7 +17,7 @@ module.exports = {
     },
     env: {
         COOKIE_NAME: process.env.COOKIE_NAME,
-        SECRET_COOKIE_PASSWORD: process.env.SECRET_COOKIE_PASSWORD,
+        COOKIE_PASSWORD: process.env.COOKIE_PASSWORD,
     },
 
     // Load .env.secrets file

@@ -32,7 +32,7 @@ const Home = ({ user }) => {
                 </p>
                 <div>
                     <Button>Play</Button>
-                    <Link href="/login">Not a member? Sign up now</Link>
+                    <Link href="auth/login">Not a member? Sign up now</Link>
                     <p>
                         Or, join a <Link href="chat/chatroom">chat room</Link>{" "}
                         and talk with your friends!

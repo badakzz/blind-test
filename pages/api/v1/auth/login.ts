@@ -7,7 +7,7 @@ dotenv.config({ path: "../../../../env/local.env" })
 
 const sessionConfig = {
     cookieName: process.env.COOKIE_NAME,
-    password: process.env.SECRET_COOKIE_PASSWORD,
+    password: process.env.COOKIE_PASSWORD,
     cookieOptions: {
         secure: process.env.NODE_ENV === "production",
     },

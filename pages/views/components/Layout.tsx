@@ -6,6 +6,7 @@ import { FaSignOutAlt, FaPlayCircle } from "react-icons/fa"
 import getConfig from "next/config"
 import { GetServerSideProps } from "next"
 import { User } from "../../../utils/types/UserType"
+import { useRouter } from "next/router"
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -16,11 +17,22 @@ type Props = {
 }
 
 const Layout = ({ user, children }: Props) => {
-    const handleLogout = async () => {
-        // Send a logout request to the server
-    }
-    const imagePath = `${publicRuntimeConfig.imageFolder}/logo.png`
+    const router = useRouter()
 
+    const handleLogout = async () => {
+        console.log("hi")
+
+        await fetch("/api/v1/auth/logout", {
+            method: "POST",
+        })
+        router.push("/")
+
+        // If you need to destroy the session on the client-side or navigate to another page, do it here.
+        // For example, using Router.push("/") to navigate to the home page.
+    }
+
+    const imagePath = `${publicRuntimeConfig.imageFolder}/logo.png`
+    console.log("homeuser", user)
     return (
         <>
             <Navbar
@@ -46,31 +58,46 @@ const Layout = ({ user, children }: Props) => {
                 </Nav.Link>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
-                    <Nav className="me-auto">
-                        <NavDropdown
-                            title={user?.username ? user.username : "User"}
-                            id="collasible-nav-dropdown"
-                        >
-                            <NavDropdown.Item href="#action/3.1">
-                                Settings
-                            </NavDropdown.Item>
-                            <NavDropdown.Item href="#action/3.2">
-                                Logout
-                            </NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item href="#action/3.3">
-                                Upgrade plan
-                            </NavDropdown.Item>
-                        </NavDropdown>
-                    </Nav>
-                    <Nav>
-                        <FaSignOutAlt />
-                        <Nav.Item>
-                            <Nav.Link onClick={handleLogout} className="ml-1">
-                                Logout
-                            </Nav.Link>
-                        </Nav.Item>
-                    </Nav>
+                    {user?.username ? (
+                        <Nav className="me-auto">
+                            <NavDropdown
+                                title={user.username}
+                                id="collasible-nav-dropdown"
+                            >
+                                <NavDropdown.Item href="#action/3.1">
+                                    Settings
+                                </NavDropdown.Item>
+                                <NavDropdown.Item onClick={handleLogout}>
+                                    Logout
+                                </NavDropdown.Item>
+                                <NavDropdown.Divider />
+                                <NavDropdown.Item href="#action/3.3">
+                                    Upgrade plan
+                                </NavDropdown.Item>
+                            </NavDropdown>
+                        </Nav>
+                    ) : (
+                        <Nav>
+                            <Nav.Item>
+                                <Nav.Link href="auth/login" className="ml-1">
+                                    Login
+                                </Nav.Link>
+                            </Nav.Item>
+                        </Nav>
+                    )}
+                    {user && (
+                        <Nav>
+                            <FaSignOutAlt />
+                            <Nav.Item>
+                                <Nav.Link
+                                    onClick={handleLogout}
+                                    className="ml-1"
+                                >
+                                    Logout
+                                </Nav.Link>
+                            </Nav.Item>
+                        </Nav>
+                    )}
                 </Navbar.Collapse>
             </Navbar>
             {children}
