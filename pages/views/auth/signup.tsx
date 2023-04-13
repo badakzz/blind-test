@@ -345,10 +345,11 @@ const Signup = () => {
                 password: password,
             }),
         })
+        console.log("res", res)
 
         if (res.ok) {
             // Redirect to success page
-            router.push("/login")
+            router.push("/views/home")
         } else {
             // Handle error
             const { message } = await res.json()

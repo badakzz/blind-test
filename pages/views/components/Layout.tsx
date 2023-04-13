@@ -58,10 +58,10 @@ const Layout = ({ user, children }: Props) => {
                 </Nav.Link>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
-                    {user?.username ? (
+                    {user?.userName ? (
                         <Nav className="me-auto">
                             <NavDropdown
-                                title={user.username}
+                                title={user.userName}
                                 id="collasible-nav-dropdown"
                             >
                                 <NavDropdown.Item href="#action/3.1">

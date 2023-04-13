@@ -1,7 +1,7 @@
 const Joi = require("joi")
 
 export const userSignupSchema = Joi.object({
-    userName: Joi.string().alphanum().min(3).max(30).required(),
+    user_name: Joi.string().alphanum().min(3).max(30).required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     permissions: Joi.number().optional(),

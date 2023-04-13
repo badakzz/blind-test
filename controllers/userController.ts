@@ -22,7 +22,7 @@ export async function createUser({
 }: {
     req: NextApiRequest
     res: NextApiResponse<CreateUserResponse>
-}): Promise<void> {
+}): Promise<User> {
     const { error, value } = userSignupSchema.validate(req.body, {
         abortEarly: false,
     })
@@ -33,12 +33,13 @@ export async function createUser({
         console.log(error)
         return
     }
+    console.log("call")
 
     const { user_name, email, password, permissions, is_active } = value
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const user: User = await Knex("users")
+    const user = await Knex("users")
         .insert({
             user_name,
             email,
@@ -49,7 +50,13 @@ export async function createUser({
         .returning("*")
         .then((rows) => rows[0])
 
-    res.status(201).json({ message: "User created successfully" })
+    // Return the user object with the same structure as the authenticateUser function
+    return {
+        id: user.user_id,
+        email: user.email,
+        userName: user.user_name,
+        isActive: user.is_active,
+    }
 }
 
 export async function loginUser({
@@ -86,7 +93,7 @@ export async function loginUser({
 export async function authenticateUser(
     identifier: string,
     password: string
-): Promise<{ id: number; email: string; username: string }> {
+): Promise<User> {
     // Query the user by identifier only (either email or username)
     const user = await Knex("users")
         .where(function () {
@@ -113,5 +120,10 @@ export async function authenticateUser(
     }
 
     // Return the user object with the username
-    return { id: user.user_id, email: user.email, username: user.user_name }
+    return {
+        id: user.user_id,
+        email: user.email,
+        userName: user.user_name,
+        isActive: user.is_active,
+    }
 }
