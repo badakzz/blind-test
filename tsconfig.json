@@ -15,7 +15,7 @@
         "jsx": "preserve",
         "incremental": true
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "server.js"],
+    "include": ["./next-env.d.ts", "**/*.ts", "**/*.tsx", "./server/index.js"],
     "exclude": ["node_modules"],
-    "start:socket": "ts-node --type-check -r tsconfig-paths/register -r dotenv/config ./server.ts"
+    "start:socket": "ts-node --type-check -r tsconfig-paths/register -r dotenv/config ./server/index.js"
 }

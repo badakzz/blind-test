@@ -1,7 +1,29 @@
 // const path = require('path')
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
+const dotenv = require("dotenv")
+dotenv.config({ path: "./env/local.env" })
 
+module.exports = {
+    webpack: (config, { isServer }) => {
+        if (!isServer) {
+            config.resolve.fallback.fs = false
+        }
+        return config
+    },
+    publicRuntimeConfig: {
+        // Define the environment variable with the path to your images folder
+        imageFolder: "/img",
+    },
+    env: {
+        COOKIE_NAME: process.env.COOKIE_NAME,
+        COOKIE_PASSWORD: process.env.COOKIE_PASSWORD,
+    },
+
+    // Load .env.secrets file
+
+    // Rest of your next.config.js content
+}
 // module.exports = {
 //     async redirects() {
 //         return [

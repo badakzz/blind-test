@@ -1,28 +1,46 @@
 {
+    "name": "blind-test",
     "private": true,
-    "scripts": {
-        "all": "concurrently \"yarn next dev\" \"yarn start:socket\"",
-        "start:socket": "node ./server.js",
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "type-check": "tsc"
-    },
+    "version": "1.0.0",
     "dependencies": {
         "@swc/helpers": "^0.4.14",
+        "axios": "^1.3.4",
         "babel-plugin-root-import": "^6.6.0",
+        "bcryptjs": "^2.4.3",
+        "bootstrap": "^5.2.3",
+        "dotenv": "^16.0.3",
         "express": "^4.18.2",
+        "formik": "^2.2.9",
+        "http": "^0.0.1-security",
+        "joi": "^17.8.3",
+        "jsonwebtoken": "^9.0.0",
+        "knex": "^2.4.2",
         "next": "latest",
-        "next-auth": "^4.19.2",
+        "next-iron-session": "^4.2.0",
         "next-transpile-modules": "^10.0.0",
+        "pg": "^8.10.0",
         "react": "^18.2.0",
         "react-bootstrap": "^2.7.1",
         "react-dom": "^18.2.0",
+        "react-icons": "^4.8.0",
         "react-query": "^3.39.3",
-        "socket.io": "^4.6.0",
-        "socket.io-client": "^4.6.0",
+        "sass": "^1.59.3",
+        "socket.io": "^4.6.1",
+        "socket.io-client": "^4.6.1",
+        "sqlite3": "^5.1.6",
         "ts-node": "^10.9.1",
         "typescript": "^4.9.5"
+    },
+    "scripts": {
+        "dev": "next dev",
+        "all": "concurrently \"yarn next dev\" \"yarn start:socket\"",
+        "start:socket": "node ./server/server.js",
+        "build": "next build",
+        "start": "next start",
+        "type-check": "tsc",
+        "db:latest": "knex --knexfile models/knexfile.cjs migrate:latest",
+        "db:rollback": "knex --knexfile models/knexfile.cjs migrate:rollback",
+        "db:seed": "knex --knexfile models/knexfile.cjs seed:run"
     },
     "devDependencies": {
         "@types/node": "^12.12.21",
@@ -30,9 +48,23 @@
         "@types/react-dom": "^17.0.1",
         "concurrently": "^7.6.0"
     },
-    "resolutions": {
-        "**/@types/react": "^17.0.21",
-        "**/@types/react-dom": "^17.0.9"
+    "knex": {
+        "migrationSource": "models/migrations",
+        "client": "pg",
+        "connection": {
+            "host": "localhost",
+            "port": 5432,
+            "user": "your_db_username",
+            "password": "your_db_password",
+            "database": "your_db_name"
+        },
+        "useNullAsDefault": true,
+        "seeds": {
+            "directory": "./models/seeds"
+        },
+        "debug": true
     },
-    "type": "module"
+    "resolutions": {
+        "@types/react": "^17.0.38"
+    }
 }
