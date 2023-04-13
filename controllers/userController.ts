@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 import { userSignupSchema, userLoginSchema } from "./validation/userSchema"
 import { isEmailValid } from "../utils/helpers/emailHelper"
 import { User } from "../utils/types"
+import { isFieldUnique } from "../utils/helpers/dbHelper"
 
 interface CreateUserResponse {
     message: string
@@ -38,6 +39,28 @@ export async function createUser({
     const { user_name, email, password, permissions, is_active } = value
 
     const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Check if the username is unique
+    const isUsernameUnique = await isFieldUnique(
+        "users",
+        "user_name",
+        user_name
+    )
+    if (!isUsernameUnique) {
+        res.status(400).json({
+            message: "Username is already in use",
+        })
+        return
+    }
+
+    // Check if the email is unique
+    const isEmailUnique = await isFieldUnique("users", "email", email)
+    if (!isEmailUnique) {
+        res.status(400).json({
+            message: "Email is already in use",
+        })
+        return
+    }
 
     const user = await Knex("users")
         .insert({
