@@ -18,6 +18,7 @@ export const saveChatMessage = async (message) => {
         .returning("*")
         .then((rows) => rows[0])
 
+    console.log("savedMessage", savedMessage)
     return savedMessage
 }
 

@@ -1,6 +1,6 @@
 const dotenv = require("dotenv")
 const path = require("path")
-dotenv.config({ path: "../env/local.env" })
+dotenv.config({ path: path.resolve(__dirname, "../env/local.env") })
 
 const config = {
     development: {
@@ -30,5 +30,7 @@ const config = {
         },
     },
 }
+
+console.log("config", config)
 
 module.exports = config

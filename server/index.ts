@@ -51,16 +51,16 @@ io.on("connection", async (socket) => {
         console.log(socket.id)
 
         if (user) {
-            const chatroomId = 1
+            const chatroomId = "1"
             const senderId = socket.id
 
             // Save the message in the database
             try {
                 await saveChatMessage({
-                    // content: message,
-                    chatroom_id: chatroomId,
+                    content: msg,
                     sender_id: senderId,
                     created_at: new Date(),
+                    chatroom_id: chatroomId,
                 })
             } catch (error) {
                 console.error("Error saving message:", error.message)
