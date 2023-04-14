@@ -1,10 +1,9 @@
 import express from "express"
-import http from "http"
+import * as http from "http"
 import { Server } from "socket.io"
-// import { saveChatMessage } from "../controllers/chatMessageController.js"
-import pkg from "../controllers/chatMessageController.js"
-
-const { saveChatMessage } = pkg
+import { saveChatMessage } from "../controllers/chatMessageController"
+import * as dotenv from "dotenv"
+dotenv.config({ path: "../env/local.env" })
 
 console.log("saveChatMessage", saveChatMessage)
 const app = express()

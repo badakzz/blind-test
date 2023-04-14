@@ -16,12 +16,6 @@
         "incremental": true,
         "outDir": "dist"
     },
-    "include": [
-        "./next-env.d.ts",
-        "**/*.ts",
-        "**/*.tsx",
-        "server/index.js",
-        "controllers/chatMessageController.js"
-    ],
+    "include": ["./next-env.d.ts", "**/*.ts", "**/*.tsx", "server/server.ts"],
     "exclude": ["node_modules"]
 }
