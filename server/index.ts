@@ -1,7 +1,11 @@
 import express from "express"
-import http from "http"
+import * as http from "http"
 import { Server } from "socket.io"
+import { saveChatMessage } from "../controllers/chatMessageController"
+import * as dotenv from "dotenv"
+dotenv.config({ path: "../env/local.env" })
 
+console.log("saveChatMessage", saveChatMessage)
 const app = express()
 const httpServer = http.createServer(app)
 const io = new Server(httpServer, {
@@ -13,11 +17,11 @@ const io = new Server(httpServer, {
     },
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.NODE_SERVER_PORT || 3001
 
 const users = []
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
     console.log(`User connected with ID: ${socket.id}`)
 
     socket.on("joinRoom", (username) => {
@@ -39,7 +43,7 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("chatMessage", (msg) => {
+    socket.on("chatMessage", async (msg) => {
         console.log(`Received message: ${msg}`)
         console.log(users)
         const user = users.find((u) => u.id === socket.id)
@@ -47,6 +51,20 @@ io.on("connection", (socket) => {
         console.log(socket.id)
 
         if (user) {
+            const chatroomId = "1"
+            const senderId = socket.id
+
+            // Save the message in the database
+            try {
+                await saveChatMessage({
+                    content: msg,
+                    sender_id: senderId,
+                    created_at: new Date(),
+                    chatroom_id: chatroomId,
+                })
+            } catch (error) {
+                console.error("Error saving message:", error.message)
+            }
             io.emit("chatMessage", { author: user.username, message: msg })
         }
     })

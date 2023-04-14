@@ -33,14 +33,11 @@
     },
     "scripts": {
         "dev": "next dev",
-        "all": "concurrently \"yarn next dev\" \"yarn start:socket\"",
-        "start:socket": "node ./server/server.js",
         "build": "next build",
         "start": "next start",
-        "type-check": "tsc",
-        "db:latest": "knex --knexfile models/knexfile.cjs migrate:latest",
-        "db:rollback": "knex --knexfile models/knexfile.cjs migrate:rollback",
-        "db:seed": "knex --knexfile models/knexfile.cjs seed:run"
+        "start:socket": "ts-node ./server/index.ts",
+        "build:ts": "tsc",
+        "all": "concurrently \"yarn dev\" \"yarn start:socket\""
     },
     "devDependencies": {
         "@types/node": "^12.12.21",

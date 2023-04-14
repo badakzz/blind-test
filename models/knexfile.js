@@ -1,7 +1,8 @@
+const dotenv = require("dotenv")
 const path = require("path")
-require("dotenv").config({ path: "../env/local.env" })
+dotenv.config({ path: path.resolve(__dirname, "../env/local.env") })
 
-module.exports = {
+const config = {
     development: {
         client: "pg",
         connection: {
@@ -29,3 +30,7 @@ module.exports = {
         },
     },
 }
+
+console.log("config", config)
+
+module.exports = config

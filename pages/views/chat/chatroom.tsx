@@ -1,25 +1,57 @@
 import React, { useState, useEffect } from "react"
 import { io } from "socket.io-client"
+import { User } from "../../../utils/types/UserType"
+import { GetServerSideProps } from "next"
+import { withSession } from "../../../utils/helpers/ironSessionHelper"
 
 const socket = io("http://localhost:3001")
 
-const Chatroom = () => {
+interface ChatroomProps {
+    user: User | null
+}
+
+export const getServerSideProps: GetServerSideProps = withSession(
+    async ({ req, res }) => {
+        const user = req.session.get("user")
+
+        if (user) {
+            return {
+                props: {
+                    user: user,
+                },
+            }
+        } else {
+            return {
+                props: {
+                    user: null,
+                },
+            }
+        }
+    }
+)
+
+const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
+    const [socket, setSocket] = useState(null)
     const [messages, setMessages] = useState([])
     const [message, setMessage] = useState("")
-    const [username, setUsername] = useState("")
+    const [username, setUsername] = useState(user ? user.userName : "")
     const [users, setUsers] = useState([])
     const [validatedUsername, setValidatedUsername] = useState(false)
+
     useEffect(() => {
-        socket.on("chatMessage", (msg) => {
+        const newSocket = io("http://localhost:3001")
+        setSocket(newSocket)
+
+        newSocket.on("chatMessage", (msg) => {
             setMessages((currentMsg) => [...currentMsg, msg])
         })
 
-        socket.on("users", (users) => {
+        newSocket.on("users", (users) => {
             setUsers(users)
         })
 
         return () => {
-            socket.disconnect()
+            newSocket.disconnect()
         }
     }, [])
 
@@ -31,13 +63,19 @@ const Chatroom = () => {
     }
 
     const handleJoinRoom = () => {
-        if (username) {
-            setValidatedUsername(true)
-            console.log("username", username)
-            socket.emit("joinRoom", username)
+        let finalUsername = username
+
+        if (user) {
+            finalUsername = user.userName
+        } else if (!username) {
+            finalUsername = `guest${users.length + 1}`
         }
+
+        setValidatedUsername(true)
+        socket.emit("joinRoom", finalUsername)
     }
 
+    console.log("chatroomUser", user)
     return (
         <div>
             <h1>Chatroom</h1>
@@ -63,6 +101,7 @@ const Chatroom = () => {
                     <input
                         type="text"
                         value={username}
+                        readOnly={!!user} // Make the input field read-only when a user is authenticated
                         onChange={(e) => {
                             setUsername(e.target.value)
                         }}
