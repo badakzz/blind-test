@@ -1,8 +1,9 @@
 import express from "express"
 import * as http from "http"
 import { Server } from "socket.io"
-import { saveChatMessage } from "../controllers/chatMessageController"
-import { generateUniqueId } from "../utils/helpers/generateUniqueId"
+import { saveChatMessage } from "../controllers/chatroomMessageController"
+import { createChatroom } from "../controllers/chatroomController"
+import { generateUniqueId } from "../utils/helpers"
 import * as dotenv from "dotenv"
 dotenv.config({ path: "../env/local.env" })
 
@@ -26,8 +27,13 @@ const chatrooms = []
 io.on("connection", async (socket) => {
     console.log(`User connected with ID: ${socket.id}`)
 
-    socket.on("createRoom", (username) => {
+    socket.on("createRoom", async (username) => {
         const chatroomId = generateUniqueId()
+        try {
+            await createChatroom(chatroomId)
+        } catch (error) {
+            console.error("Error creating chatroom:", error.message)
+        }
         socket.join(chatroomId)
         const user = { id: socket.id, username, chatroomId }
         users.push(user)
