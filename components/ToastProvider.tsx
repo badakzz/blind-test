@@ -11,7 +11,7 @@ import throttle from "lodash/throttle"
 import HandleErrorService, {
     ErrorHandler,
     ErrorType,
-} from "../../../controllers/ErrorHandlerService"
+} from "../controllers/ErrorHandlerService"
 
 const ToastContext = createContext<{
     showErrorToast: (error: ErrorType, errorHandler?: ErrorHandler) => void

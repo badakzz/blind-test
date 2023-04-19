@@ -77,7 +77,7 @@ export async function createUser({
     return {
         id: user.user_id,
         email: user.email,
-        userName: user.user_name,
+        username: user.user_name,
         isActive: user.is_active,
     }
 }
@@ -146,7 +146,7 @@ export async function authenticateUser(
     return {
         id: user.user_id,
         email: user.email,
-        userName: user.user_name,
+        username: user.user_name,
         isActive: user.is_active,
     }
 }

@@ -1,6 +1,6 @@
 export type User = {
     id: number
-    userName: string
+    username: string
     email: string
     isActive: boolean
 }
