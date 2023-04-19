@@ -4,6 +4,10 @@ import { User } from "../../../utils/types/User"
 import { GetServerSideProps } from "next"
 import { withSession } from "../../../utils/helpers/ironSessionHelper"
 import { CreateOrJoinChatroom, SendChatMessage } from "../../../components"
+import {
+    getPlaylistsByGenre,
+    getRandomTrackPreviewFromPlaylist,
+} from "../../../lib/spotify/spotifyAPI"
 
 interface ChatroomProps {
     user: User | null
@@ -34,6 +38,27 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [messages, setMessages] = useState([])
     const [users, setUsers] = useState([])
     const [validatedUsername, setValidatedUsername] = useState(false)
+    const [playlistId, setPlaylistId] = useState(null)
+    const [trackPreviews, setTrackPreviews] = useState([])
+
+    const handleGenreSelection = async (genre) => {
+        const playlists = await getPlaylistsByGenre(genre)
+        // Display playlists in a modal or UI element and let the user select one
+        // For example, you could use the user's selection to set the playlist ID:
+        setPlaylistId(userSelectedPlaylistId)
+    }
+
+    useEffect(() => {
+        if (playlistId) {
+            const fetchTrackPreviews = async () => {
+                const previews = await getRandomTrackPreviewFromPlaylist(
+                    playlistId
+                )
+                setTrackPreviews((prevState) => [...prevState, previews])
+            }
+            fetchTrackPreviews()
+        }
+    }, [playlistId])
 
     useEffect(() => {
         const newSocket = io("http://localhost:3001")
