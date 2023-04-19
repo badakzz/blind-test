@@ -1,10 +1,11 @@
 import Knex from "../models/knex"
 
-export async function createChatroom(chatroomName: string) {
+export const createChatroom = async (chatroom_id) => {
     const newChatroom = await Knex("chatrooms")
-        .insert({ chatroom_name: chatroomName, created_at: new Date() })
+        .insert({ chatroom_id })
         .returning("*")
         .then((rows) => rows[0])
 
+    console.log("New chatroom created:", newChatroom)
     return newChatroom
 }

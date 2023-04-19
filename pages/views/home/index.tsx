@@ -1,5 +1,4 @@
 import Link from "next/link"
-import Layout from "../components/Layout"
 import { Button } from "react-bootstrap"
 import { GetServerSideProps } from "next"
 import { withIronSession } from "next-iron-session"

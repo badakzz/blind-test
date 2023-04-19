@@ -5,7 +5,7 @@ import { Navbar, Container, Nav, NavDropdown, Image } from "react-bootstrap"
 import { FaSignOutAlt, FaPlayCircle } from "react-icons/fa"
 import getConfig from "next/config"
 import { GetServerSideProps } from "next"
-import { User } from "../../../utils/types/UserType"
+import { User } from "../utils/types/User"
 import { useRouter } from "next/router"
 
 const { publicRuntimeConfig } = getConfig()
@@ -58,10 +58,10 @@ const Layout: React.FC<Props> = ({ user, children }) => {
                 </Nav.Link>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
-                    {user?.userName ? (
+                    {user?.username ? (
                         <Nav className="me-auto">
                             <NavDropdown
-                                title={user.userName}
+                                title={user.username}
                                 id="collasible-nav-dropdown"
                             >
                                 <NavDropdown.Item href="#action/3.1">

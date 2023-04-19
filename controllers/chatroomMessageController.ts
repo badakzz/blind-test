@@ -1,4 +1,5 @@
 import Knex from "../models/knex"
+import { generateUniqueId } from "../utils/helpers"
 import { chatMessageSchema } from "./validation/chatMessageSchema"
 
 export const saveChatMessage = async (message) => {
@@ -13,13 +14,11 @@ export const saveChatMessage = async (message) => {
         )
     }
 
-    const savedMessage = await Knex("chat_messages")
-        .insert(value)
+    const chatMessageId = generateUniqueId()
+    const newMessage = await Knex("chat_messages")
+        .insert({ ...message, chat_message_id: chatMessageId })
         .returning("*")
         .then((rows) => rows[0])
-
-    console.log("savedMessage", savedMessage)
-    return savedMessage
 }
 
 export async function flagMessage(messageId, reason, reporterId) {

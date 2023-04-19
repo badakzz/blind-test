@@ -16,6 +16,6 @@
         "incremental": true,
         "outDir": "dist"
     },
-    "include": ["./next-env.d.ts", "**/*.ts", "**/*.tsx", "server/server.ts"],
+    "include": ["./next-env.d.ts", "**/*.ts", "**/*.tsx", "server/index.ts"],
     "exclude": ["node_modules"]
 }
