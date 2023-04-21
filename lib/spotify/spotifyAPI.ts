@@ -1,7 +1,11 @@
 import axios from "axios"
 
+// const dotenv = require("dotenv")
+// dotenv.config({ path: "./env/local.env" })
+
 const clientId = process.env.SPOTIFY_CLIENT_ID
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+console.log({ clientId: clientId, clientSecret: clientSecret })
 
 let accessToken = ""
 
@@ -25,7 +29,7 @@ export const getAccessToken = async () => {
     accessToken = response.data.access_token
 }
 
-export const getAvailableGenres = async () => {
+export const getAvailableGenres = async (country = "FR", locale = "fr_FR") => {
     if (!accessToken) {
         await getAccessToken()
     }
@@ -36,13 +40,21 @@ export const getAvailableGenres = async () => {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
+            params: {
+                country: country,
+                locale: locale,
+            },
         }
     )
 
     return response.data.categories.items
 }
 
-export const getPlaylistsByGenre = async (genreId) => {
+export const getPlaylistsByGenre = async (
+    genreId,
+    country = "FR",
+    locale = "fr_FR"
+) => {
     if (!accessToken) {
         await getAccessToken()
     }
@@ -52,6 +64,10 @@ export const getPlaylistsByGenre = async (genreId) => {
         {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+                country: country,
+                locale: locale,
             },
         }
     )

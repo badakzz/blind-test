@@ -3,7 +3,11 @@ import { io } from "socket.io-client"
 import { User } from "../../../utils/types/User"
 import { GetServerSideProps } from "next"
 import { withSession } from "../../../utils/helpers/ironSessionHelper"
-import { CreateOrJoinChatroom, SendChatMessage } from "../../../components"
+import {
+    CreateOrJoinChatroom,
+    SendChatMessage,
+    PlaylistSelectionModal,
+} from "../../../components"
 import {
     getPlaylistsByGenre,
     getRandomTrackPreviewFromPlaylist,
@@ -40,13 +44,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [validatedUsername, setValidatedUsername] = useState(false)
     const [playlistId, setPlaylistId] = useState(null)
     const [trackPreviews, setTrackPreviews] = useState([])
-
-    const handleGenreSelection = async (genre) => {
-        const playlists = await getPlaylistsByGenre(genre)
-        // Display playlists in a modal or UI element and let the user select one
-        // For example, you could use the user's selection to set the playlist ID:
-        setPlaylistId(userSelectedPlaylistId)
-    }
+    const [showPlaylistModal, setShowPlaylistModal] = useState(false)
 
     useEffect(() => {
         if (playlistId) {
@@ -118,16 +116,48 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         console.log("chatroomUser", user)
     }
 
+    // const handleGenreSelection = async (genre) => {
+    //     const playlists = await getPlaylistsByGenre(genre)
+    //     // Display playlists in a modal or UI element and let the user select one
+    //     // For example, you could use the user's selection to set the playlist ID:
+    //     setPlaylistId(userSelectedPlaylistId)
+    // }
+
+    const handleOpenPlaylistModal = () => {
+        setShowPlaylistModal(true)
+    }
+
+    const handleClosePlaylistModal = () => {
+        setShowPlaylistModal(false)
+    }
+
+    const handlePlaylistSelected = (playlistId) => {
+        setPlaylistId(playlistId)
+    }
+
     return (
         <div>
             <h1>Chatroom</h1>
-            {!validatedUsername ? (
+            {!validatedUsername && (
                 <CreateOrJoinChatroom
                     user={user}
                     onCreate={handleCreateRoom}
                     onJoin={handleJoinRoom}
                 />
-            ) : (
+            )}
+            {validatedUsername && !playlistId && (
+                <>
+                    <button onClick={handleOpenPlaylistModal}>
+                        Select Playlist
+                    </button>
+                    <PlaylistSelectionModal
+                        show={showPlaylistModal}
+                        onPlaylistSelected={handlePlaylistSelected}
+                        onModalClose={handleClosePlaylistModal}
+                    />
+                </>
+            )}
+            {playlistId && (
                 <SendChatMessage
                     messages={messages}
                     users={users}
