@@ -29,7 +29,7 @@ export const getAccessToken = async () => {
     accessToken = response.data.access_token
 }
 
-export const getAvailableGenres = async (country = "FR", locale = "fr_FR") => {
+export const getAvailableGenres = async (country = "US", locale = "en_US") => {
     if (!accessToken) {
         await getAccessToken()
     }
@@ -52,8 +52,8 @@ export const getAvailableGenres = async (country = "FR", locale = "fr_FR") => {
 
 export const getPlaylistsByGenre = async (
     genreId,
-    country = "FR",
-    locale = "fr_FR"
+    country = "US",
+    locale = "en_US"
 ) => {
     if (!accessToken) {
         await getAccessToken()

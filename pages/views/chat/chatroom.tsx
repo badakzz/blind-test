@@ -9,9 +9,11 @@ import {
     PlaylistSelectionModal,
 } from "../../../components"
 import {
+    getAvailableGenres,
     getPlaylistsByGenre,
     getRandomTrackPreviewFromPlaylist,
 } from "../../../lib/spotify/spotifyAPI"
+import { startGame, startPlayback } from "../../../utils/helpers/gameHelper"
 
 interface ChatroomProps {
     user: User | null
@@ -45,8 +47,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [playlistId, setPlaylistId] = useState(null)
     const [trackPreviews, setTrackPreviews] = useState([])
     const [showPlaylistModal, setShowPlaylistModal] = useState(false)
+    const [gameStarted, setGameStarted] = useState(false)
 
     useEffect(() => {
+        const pog = async () => await getAvailableGenres()
+        pog()
         if (playlistId) {
             const fetchTrackPreviews = async () => {
                 const previews = await getRandomTrackPreviewFromPlaylist(
@@ -135,6 +140,10 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         setPlaylistId(playlistId)
     }
 
+    const handleStartGame = () => {
+        startGame(setGameStarted, trackPreviews, startPlayback)
+    }
+
     return (
         <div>
             <h1>Chatroom</h1>
@@ -157,7 +166,10 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                     />
                 </>
             )}
-            {playlistId && (
+            {playlistId && !gameStarted && (
+                <button onClick={handleStartGame}>Start Game</button>
+            )}
+            {playlistId && gameStarted && (
                 <SendChatMessage
                     messages={messages}
                     users={users}
