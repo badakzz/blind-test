@@ -10,6 +10,7 @@ export const startGame = async (
 }
 
 export const startPlayback = (song, trackPreviews) => {
+    console.log("AAAA", song.previewUrl)
     const audio = new Audio(song.previewUrl)
     audio.volume = 0.2 // Set volume to the maximum
     audio.play().catch((error) => {
@@ -28,7 +29,7 @@ export const startPlayback = (song, trackPreviews) => {
         const nextIndex = currentIndex + 1
 
         // Stop after 10 tracks
-        if (nextIndex < 10) {
+        if (nextIndex < 10 && trackPreviews[nextIndex]) {
             // Wait for 5 seconds before playing the next track
             setTimeout(() => {
                 startPlayback(trackPreviews[nextIndex], trackPreviews)
@@ -37,4 +38,45 @@ export const startPlayback = (song, trackPreviews) => {
             // Game is over, handle this as needed
         }
     }
+}
+
+export const normalizeAnswer = (text) => {
+    return text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+}
+
+export const calculateLevenshteinDistance = (a, b) => {
+    const matrix = []
+
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i]
+    }
+
+    for (let i = 0; i <= a.length; i++) {
+        matrix[0][i] = i
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1]
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                )
+            }
+        }
+    }
+
+    return matrix[b.length][a.length]
+}
+
+export const calculateAnswerSimilarity = (a, b) => {
+    const distance = calculateLevenshteinDistance(a, b)
+    const longestLength = Math.max(a.length, b.length)
+    return (longestLength - distance) / longestLength
 }

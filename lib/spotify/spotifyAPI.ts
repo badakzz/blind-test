@@ -75,7 +75,10 @@ export const getPlaylistsByGenre = async (
     return response.data.playlists.items
 }
 
-export const getRandomTrackPreviewFromPlaylist = async (playlistId) => {
+export const getMultipleRandomTrackPreviewsFromPlaylist = async (
+    playlistId,
+    numPreviews
+) => {
     if (!accessToken) {
         await getAccessToken()
     }
@@ -89,12 +92,26 @@ export const getRandomTrackPreviewFromPlaylist = async (playlistId) => {
         }
     )
 
-    const tracks = response.data.items.filter((item) => item.track.preview_url)
-    const randomTrack = tracks[Math.floor(Math.random() * tracks.length)]
+    const tracksWithPreview = response.data.items.filter(
+        (item) => item.track.preview_url
+    )
 
-    return {
-        previewUrl: randomTrack.track.preview_url,
-        name: randomTrack.track.name,
-        artist: randomTrack.track.artists[0].name,
+    if (tracksWithPreview.length === 0) {
+        throw new Error("No tracks with previews found in the playlist.")
     }
+
+    const previews = []
+    for (let i = 0; i < numPreviews; i++) {
+        const randomTrack =
+            tracksWithPreview[
+                Math.floor(Math.random() * tracksWithPreview.length)
+            ]
+        previews.push({
+            previewUrl: randomTrack.track.preview_url,
+            name: randomTrack.track.name,
+            artist: randomTrack.track.artists[0].name,
+        })
+    }
+
+    return previews
 }

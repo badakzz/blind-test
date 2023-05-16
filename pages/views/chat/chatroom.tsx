@@ -11,7 +11,7 @@ import {
 import {
     getAvailableGenres,
     getPlaylistsByGenre,
-    getRandomTrackPreviewFromPlaylist,
+    getMultipleRandomTrackPreviewsFromPlaylist,
 } from "../../../lib/spotify/spotifyAPI"
 import { startGame, startPlayback } from "../../../utils/helpers/gameHelper"
 
@@ -50,14 +50,14 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [gameStarted, setGameStarted] = useState(false)
 
     useEffect(() => {
-        const pog = async () => await getAvailableGenres()
-        pog()
         if (playlistId) {
             const fetchTrackPreviews = async () => {
-                const previews = await getRandomTrackPreviewFromPlaylist(
-                    playlistId
-                )
-                setTrackPreviews((prevState) => [...prevState, previews])
+                const previews =
+                    await getMultipleRandomTrackPreviewsFromPlaylist(
+                        playlistId,
+                        10
+                    )
+                setTrackPreviews((prevState) => [...prevState, ...previews]) // spread the contents of previews
             }
             fetchTrackPreviews()
         }
@@ -141,6 +141,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }
 
     const handleStartGame = () => {
+        console.log("tracks", trackPreviews)
         startGame(setGameStarted, trackPreviews, startPlayback)
     }
 
