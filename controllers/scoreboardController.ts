@@ -1,6 +1,7 @@
 import Knex from "../models/knex"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
+    console.log("controllerParameters", currentChatroomId, userId, points)
     try {
         // Here, you'll need to replace 'knex' with your actual Knex.js instance.
         // You'll also need to replace 'currentChatroomId' with the actual ID of the current chatroom.

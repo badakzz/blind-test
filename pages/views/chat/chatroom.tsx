@@ -57,6 +57,8 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [currentSongIndex, setCurrentSongIndex] = useState(0)
     const [gameStartTime, setGameStartTime] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(null)
+    const [currentSongName, setCurrentSongName] = useState(null)
+    const [currentArtistName, setCurrentArtistName] = useState(null)
 
     useEffect(() => {
         if (playlistId) {
@@ -73,6 +75,13 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }, [playlistId])
 
     useEffect(() => {
+        if (trackPreviews && trackPreviews[currentSongIndex]) {
+            setCurrentSongName(trackPreviews[currentSongIndex].name)
+            setCurrentArtistName(trackPreviews[currentSongIndex].artist)
+        }
+    }, [trackPreviews, currentSongIndex])
+
+    useEffect(() => {
         const newSocket = io("http://localhost:3001")
         setSocket(newSocket)
 
@@ -86,57 +95,9 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             setCurrentChatroomId(chatroomId) // Set the current chatroom id
         })
 
-        newSocket.on("chatMessage", (msg, user) => {
-            setMessages((currentMsg) => [...currentMsg, msg])
-
-            const currentSongName = trackPreviews[currentSongIndex].name
-            const currentArtistName = trackPreviews[currentSongIndex].artist
-            const normalizedMessage = normalizeAnswer(msg.text)
-
-            const nameSimilarity = calculateAnswerSimilarity(
-                normalizedMessage,
-                normalizeAnswer(currentSongName)
-            )
-            const artistSimilarity = calculateAnswerSimilarity(
-                normalizedMessage,
-                normalizeAnswer(currentArtistName)
-            )
-
-            const minAccuracy = 0.9
-            let points = 0
-            let correctGuess = false
-            let correctGuessType = ""
-
-            if (nameSimilarity >= minAccuracy) {
-                points += 0.5
-                correctGuess = true
-                correctGuessType = "song name"
-            }
-
-            if (artistSimilarity >= minAccuracy) {
-                points += 0.5
-                correctGuess = true
-                correctGuessType = "artist name"
-            }
-
-            if (points > 0) {
-                updateScoreboard(currentChatroomId, user.id, points)
-            }
-
-            // If user has guessed correctly, send a message to all users
-            if (correctGuess) {
-                newSocket.emit("correctGuess", {
-                    user: user.name,
-                    guessType: correctGuessType,
-                })
-            }
-        })
-
-        newSocket.on("users", (users) => {
-            setUsers(users)
-        })
-
         newSocket.on("correctGuess", ({ user, guessType }) => {
+            //manage the "feat", "ft" cases
+            console.log("received correct", user, guessType)
             const guessMessage = `${user} has correctly guessed the ${guessType}!`
             setMessages((currentMsg) => [
                 ...currentMsg,
@@ -144,10 +105,74 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             ])
         })
 
+        newSocket.on("users", (users) => {
+            setUsers(users)
+        })
+
         return () => {
             newSocket.disconnect()
         }
     }, [])
+
+    useEffect(() => {
+        if (socket) {
+            // Clean up old event listeners
+            socket.off("chatMessage")
+            socket.off("correctGuess")
+
+            // Set up new event listeners
+            socket.on("chatMessage", (msg) => {
+                // Your event listener logic...
+                setMessages((currentMsg) => [...currentMsg, msg])
+
+                const normalizedMessage = normalizeAnswer(msg.message)
+
+                const nameSimilarity = calculateAnswerSimilarity(
+                    normalizedMessage,
+                    normalizeAnswer(currentSongName)
+                )
+
+                const artistSimilarity = calculateAnswerSimilarity(
+                    normalizedMessage,
+                    normalizeAnswer(currentArtistName)
+                )
+
+                const minAccuracy = 0.9
+                let points = 0
+                let correctGuess = false
+                let correctGuessType = ""
+
+                if (nameSimilarity >= minAccuracy) {
+                    points += 0.5
+                    correctGuess = true
+                    correctGuessType = "song name"
+                }
+
+                if (artistSimilarity >= minAccuracy) {
+                    points += 0.5
+                    correctGuess = true
+                    correctGuessType = "artist name"
+                }
+
+                if (points > 0) {
+                    updateScoreboard(currentChatroomId, user.id, points)
+                }
+
+                // If user has guessed correctly, send a message to all users
+                if (correctGuess) {
+                    console.log("correct")
+                    socket.emit("correctGuess", {
+                        user: msg.author,
+                        guessType: correctGuessType,
+                    })
+                }
+            })
+
+            socket.on("correctGuess", ({ user, guessType }) => {
+                // Your 'correctGuess' event listener logic...
+            })
+        }
+    }, [socket, currentSongName, currentArtistName])
 
     const handleCreateRoom = (username) => {
         let finalUsername = username

@@ -13,10 +13,12 @@ const sessionConfig = {
     },
 }
 
-async function handler(
+// console.log("sessionConfig", sessionConfig)
+
+const handler = async (
     req: NextApiRequest & { session: any },
     res: NextApiResponse
-) {
+) => {
     if (req.method !== "POST") {
         return res.status(405).end()
     }

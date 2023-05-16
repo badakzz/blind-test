@@ -2,7 +2,15 @@
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
 const dotenv = require("dotenv")
-dotenv.config({ path: "./env/local.env" })
+const path = require("path")
+
+// Resolve the path to the .env file
+const envPath = path.resolve(__dirname, "../env/local.env")
+
+// Load the .env file
+dotenv.config({ path: envPath })
+
+// dotenv.config({ path: path.join(__dirname, "env", "local.env") })
 
 module.exports = {
     webpack: (config, { isServer }) => {

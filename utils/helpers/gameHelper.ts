@@ -10,7 +10,11 @@ export const startGame = async (
 }
 
 export const startPlayback = (song, trackPreviews) => {
-    console.log("AAAA", song.previewUrl)
+    console.log("currentsong", song.name, song.artist)
+    if (!song || !song.previewUrl) {
+        console.error("Invalid song or song.previewUrl is not defined.")
+        return
+    }
     const audio = new Audio(song.previewUrl)
     audio.volume = 0.2 // Set volume to the maximum
     audio.play().catch((error) => {
