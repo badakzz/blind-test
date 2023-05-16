@@ -8,18 +8,13 @@ import {
     SendChatMessage,
     PlaylistSelectionModal,
 } from "../../../components"
-import {
-    getAvailableGenres,
-    getPlaylistsByGenre,
-    getMultipleRandomTrackPreviewsFromPlaylist,
-} from "../../../lib/spotify/spotifyAPI"
+import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../lib/spotify/spotifyAPI"
 import {
     startGame,
     startPlayback,
     calculateAnswerSimilarity,
     normalizeAnswer,
 } from "../../../utils/helpers/gameHelper"
-import { updateScoreboard } from "../../../controllers/scoreboardController"
 
 interface ChatroomProps {
     user: User | null
@@ -89,7 +84,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
 
             // Set up new event listeners
             socket.on("chatMessage", (msg) => {
-                // Your event listener logic...
                 setMessages((currentMsg) => [...currentMsg, msg])
 
                 const normalizedMessage = normalizeAnswer(msg.message)
@@ -122,12 +116,18 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 }
 
                 if (points > 0) {
-                    updateScoreboard(currentChatroomId, user.id, points)
+                    socket.emit(
+                        "updateScore",
+                        currentChatroomId,
+                        user.id,
+                        points,
+                        correctGuessType
+                    )
                 }
             })
 
-            socket.on("correctGuess", ({ user, guessType }) => {
-                const guessMessage = `${user} has correctly guessed the ${guessType}!`
+            socket.on("scoreUpdated", ({ user, correctGuessType }) => {
+                const guessMessage = `${user} has correctly guessed the ${correctGuessType}!`
                 setMessages((currentMsg) => [
                     ...currentMsg,
                     { user: "System", text: guessMessage },
@@ -150,15 +150,15 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             setCurrentChatroomId(chatroomId) // Set the current chatroom id
         })
 
-        newSocket.on("correctGuess", ({ user, guessType }) => {
-            //manage the "feat", "ft" cases
-            console.log("received correct", user, guessType)
-            const guessMessage = `${user} has correctly guessed the ${guessType}!`
-            setMessages((currentMsg) => [
-                ...currentMsg,
-                { user: "System", text: guessMessage },
-            ])
-        })
+        // newSocket.on("correctGuess", ({ user, guessType }) => {
+        //     //manage the "feat", "ft" cases
+        //     console.log("received correct", user, guessType)
+        //     const guessMessage = `${user} has correctly guessed the ${guessType}!`
+        //     setMessages((currentMsg) => [
+        //         ...currentMsg,
+        //         { user: "System", text: guessMessage },
+        //     ])
+        // })
 
         newSocket.on("users", (users) => {
             setUsers(users)

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import Knex from "../models/knex"
 import bcrypt from "bcryptjs"
-import { userSignupSchema, userLoginSchema } from "./validation/userSchema"
+import { userSignupSchema, userLoginSchema } from "./validation/userSchemas"
 import { isEmailValid } from "../utils/helpers/emailHelper"
 import { User } from "../utils/types"
 import { isFieldUnique } from "../utils/helpers/dbHelper"
@@ -34,7 +34,6 @@ export async function createUser({
         console.log(error)
         return
     }
-    console.log("call")
 
     const { user_name, email, password, permissions, is_active } = value
 
@@ -128,7 +127,6 @@ export async function authenticateUser(
         })
         .first()
 
-    console.log("controller", user)
     if (!user) {
         // Handle error: identifier not found
         throw new Error("Invalid identifier")

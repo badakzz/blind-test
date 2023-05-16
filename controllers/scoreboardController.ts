@@ -1,13 +1,31 @@
 import Knex from "../models/knex"
+import { scoreboardSchema } from "./validation/scoreboardSchema"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
-    console.log("controllerParameters", currentChatroomId, userId, points)
+    const { error } = scoreboardSchema.validate(
+        {
+            user_id: userId,
+            chatroom_id: currentChatroomId,
+            score: points,
+        },
+        {
+            abortEarly: false,
+        }
+    )
+
+    if (error) {
+        throw new Error(
+            "Validation failed: " +
+                error.details.map((detail) => detail.message)
+        )
+    }
+
     try {
         // Here, you'll need to replace 'knex' with your actual Knex.js instance.
         // You'll also need to replace 'currentChatroomId' with the actual ID of the current chatroom.
         const updatedScore = await Knex("scoreboard")
             .where({ chatroom_id: currentChatroomId, user_id: userId })
-            // .increment("score", points)
+            .increment("score", points)
             .returning("*")
 
         if (!updatedScore || updatedScore.length === 0) {

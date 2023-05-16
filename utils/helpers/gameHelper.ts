@@ -10,7 +10,6 @@ export const startGame = async (
 }
 
 export const startPlayback = (song, trackPreviews) => {
-    console.log("currentsong", song.name, song.artist)
     if (!song || !song.previewUrl) {
         console.error("Invalid song or song.previewUrl is not defined.")
         return
@@ -26,7 +25,6 @@ export const startPlayback = (song, trackPreviews) => {
             error
         )
     }
-    console.log("trackPreviews", trackPreviews)
     // When the track ends, play the next one (if there are any left)
     audio.onended = () => {
         const currentIndex = trackPreviews.indexOf(song)

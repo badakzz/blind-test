@@ -3,11 +3,11 @@ import * as http from "http"
 import { Server } from "socket.io"
 import { saveChatMessage } from "../controllers/chatroomMessageController"
 import { createChatroom } from "../controllers/chatroomController"
+import { updateScoreboard } from "../controllers/scoreboardController"
 import { generateUniqueId } from "../utils/helpers"
 import * as dotenv from "dotenv"
 dotenv.config({ path: "../env/local.env" })
 
-console.log("saveChatMessage", saveChatMessage)
 const app = express()
 const httpServer = http.createServer(app)
 const io = new Server(httpServer, {
@@ -93,6 +93,19 @@ io.on("connection", async (socket) => {
             })
         }
     })
+
+    socket.on(
+        "updateScore",
+        async (currentChatroomId, userId, points, correctGuessType) => {
+            updateScoreboard(currentChatroomId, userId, points)
+            socket.emit("scoreUpdated", {
+                chatroomId: currentChatroomId,
+                userId,
+                newScore: points,
+                correctGuessType,
+            })
+        }
+    )
 })
 
 httpServer.listen(PORT, () => {

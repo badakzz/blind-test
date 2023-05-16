@@ -3,7 +3,7 @@ import { generateUniqueId } from "../utils/helpers"
 import { chatMessageSchema } from "./validation/chatMessageSchema"
 
 export const saveChatMessage = async (message) => {
-    const { error, value } = chatMessageSchema.validate(message, {
+    const { error } = chatMessageSchema.validate(message, {
         abortEarly: false,
     })
 
