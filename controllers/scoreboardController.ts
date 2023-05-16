@@ -7,7 +7,7 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
         // You'll also need to replace 'currentChatroomId' with the actual ID of the current chatroom.
         const updatedScore = await Knex("scoreboard")
             .where({ chatroom_id: currentChatroomId, user_id: userId })
-            .increment("score", points)
+            // .increment("score", points)
             .returning("*")
 
         if (!updatedScore || updatedScore.length === 0) {

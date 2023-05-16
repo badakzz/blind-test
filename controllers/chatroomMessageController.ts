@@ -21,7 +21,7 @@ export const saveChatMessage = async (message) => {
         .then((rows) => rows[0])
 }
 
-export async function flagMessage(messageId, reason, reporterId) {
+const flagMessage = async (messageId, reason, reporterId) => {
     const flaggedMessage = await Knex("chat_messages")
         .where({ id: messageId })
         .update({ flagged: true, flagReason: reason, reporterId })
