@@ -82,39 +82,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }, [trackPreviews, currentSongIndex])
 
     useEffect(() => {
-        const newSocket = io("http://localhost:3001")
-        setSocket(newSocket)
-
-        newSocket.on("chatroomCreated", (chatroomId) => {
-            // Display the chatroom link when the room is created
-            const currentUrl = window.location.href
-            const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
-            alert(
-                `Chatroom created! Share this link with others to join: ${roomUrl}`
-            )
-            setCurrentChatroomId(chatroomId) // Set the current chatroom id
-        })
-
-        newSocket.on("correctGuess", ({ user, guessType }) => {
-            //manage the "feat", "ft" cases
-            console.log("received correct", user, guessType)
-            const guessMessage = `${user} has correctly guessed the ${guessType}!`
-            setMessages((currentMsg) => [
-                ...currentMsg,
-                { user: "System", text: guessMessage },
-            ])
-        })
-
-        newSocket.on("users", (users) => {
-            setUsers(users)
-        })
-
-        return () => {
-            newSocket.disconnect()
-        }
-    }, [])
-
-    useEffect(() => {
         if (socket) {
             // Clean up old event listeners
             socket.off("chatMessage")
@@ -157,22 +124,73 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 if (points > 0) {
                     updateScoreboard(currentChatroomId, user.id, points)
                 }
-
-                // If user has guessed correctly, send a message to all users
-                if (correctGuess) {
-                    console.log("correct")
-                    socket.emit("correctGuess", {
-                        user: msg.author,
-                        guessType: correctGuessType,
-                    })
-                }
             })
 
             socket.on("correctGuess", ({ user, guessType }) => {
-                // Your 'correctGuess' event listener logic...
+                const guessMessage = `${user} has correctly guessed the ${guessType}!`
+                setMessages((currentMsg) => [
+                    ...currentMsg,
+                    { user: "System", text: guessMessage },
+                ])
             })
         }
     }, [socket, currentSongName, currentArtistName])
+
+    useEffect(() => {
+        const newSocket = io("http://localhost:3001")
+        setSocket(newSocket)
+
+        newSocket.on("chatroomCreated", (chatroomId) => {
+            // Display the chatroom link when the room is created
+            const currentUrl = window.location.href
+            const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
+            alert(
+                `Chatroom created! Share this link with others to join: ${roomUrl}`
+            )
+            setCurrentChatroomId(chatroomId) // Set the current chatroom id
+        })
+
+        newSocket.on("correctGuess", ({ user, guessType }) => {
+            //manage the "feat", "ft" cases
+            console.log("received correct", user, guessType)
+            const guessMessage = `${user} has correctly guessed the ${guessType}!`
+            setMessages((currentMsg) => [
+                ...currentMsg,
+                { user: "System", text: guessMessage },
+            ])
+        })
+
+        newSocket.on("users", (users) => {
+            setUsers(users)
+        })
+
+        return () => {
+            newSocket.disconnect()
+        }
+    }, [])
+
+    useEffect(() => {
+        const newSocket = io("http://localhost:3001")
+        setSocket(newSocket)
+
+        newSocket.on("chatroomCreated", (chatroomId) => {
+            // Display the chatroom link when the room is created
+            const currentUrl = window.location.href
+            const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
+            alert(
+                `Chatroom created! Share this link with others to join: ${roomUrl}`
+            )
+            setCurrentChatroomId(chatroomId) // Set the current chatroom id
+        })
+
+        newSocket.on("users", (users) => {
+            setUsers(users)
+        })
+
+        return () => {
+            newSocket.disconnect()
+        }
+    }, [])
 
     const handleCreateRoom = (username) => {
         let finalUsername = username
