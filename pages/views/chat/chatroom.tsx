@@ -13,7 +13,13 @@ import {
     getPlaylistsByGenre,
     getMultipleRandomTrackPreviewsFromPlaylist,
 } from "../../../lib/spotify/spotifyAPI"
-import { startGame, startPlayback } from "../../../utils/helpers/gameHelper"
+import {
+    startGame,
+    startPlayback,
+    calculateAnswerSimilarity,
+    normalizeAnswer,
+} from "../../../utils/helpers/gameHelper"
+import { updateScoreboard } from "../../../controllers/scoreboardController"
 
 interface ChatroomProps {
     user: User | null
@@ -48,6 +54,9 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [trackPreviews, setTrackPreviews] = useState([])
     const [showPlaylistModal, setShowPlaylistModal] = useState(false)
     const [gameStarted, setGameStarted] = useState(false)
+    const [currentSongIndex, setCurrentSongIndex] = useState(0)
+    const [gameStartTime, setGameStartTime] = useState(null)
+    const [currentChatroomId, setCurrentChatroomId] = useState(null)
 
     useEffect(() => {
         if (playlistId) {
@@ -74,14 +83,65 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             alert(
                 `Chatroom created! Share this link with others to join: ${roomUrl}`
             )
+            setCurrentChatroomId(chatroomId) // Set the current chatroom id
         })
 
-        newSocket.on("chatMessage", (msg) => {
+        newSocket.on("chatMessage", (msg, user) => {
             setMessages((currentMsg) => [...currentMsg, msg])
+
+            const currentSongName = trackPreviews[currentSongIndex].name
+            const currentArtistName = trackPreviews[currentSongIndex].artist
+            const normalizedMessage = normalizeAnswer(msg.text)
+
+            const nameSimilarity = calculateAnswerSimilarity(
+                normalizedMessage,
+                normalizeAnswer(currentSongName)
+            )
+            const artistSimilarity = calculateAnswerSimilarity(
+                normalizedMessage,
+                normalizeAnswer(currentArtistName)
+            )
+
+            const minAccuracy = 0.9
+            let points = 0
+            let correctGuess = false
+            let correctGuessType = ""
+
+            if (nameSimilarity >= minAccuracy) {
+                points += 0.5
+                correctGuess = true
+                correctGuessType = "song name"
+            }
+
+            if (artistSimilarity >= minAccuracy) {
+                points += 0.5
+                correctGuess = true
+                correctGuessType = "artist name"
+            }
+
+            if (points > 0) {
+                updateScoreboard(currentChatroomId, user.id, points)
+            }
+
+            // If user has guessed correctly, send a message to all users
+            if (correctGuess) {
+                newSocket.emit("correctGuess", {
+                    user: user.name,
+                    guessType: correctGuessType,
+                })
+            }
         })
 
         newSocket.on("users", (users) => {
             setUsers(users)
+        })
+
+        newSocket.on("correctGuess", ({ user, guessType }) => {
+            const guessMessage = `${user} has correctly guessed the ${guessType}!`
+            setMessages((currentMsg) => [
+                ...currentMsg,
+                { user: "System", text: guessMessage },
+            ])
         })
 
         return () => {
@@ -143,6 +203,8 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const handleStartGame = () => {
         console.log("tracks", trackPreviews)
         startGame(setGameStarted, trackPreviews, startPlayback)
+        setGameStartTime(Date.now())
+        setCurrentSongIndex(0)
     }
 
     return (
