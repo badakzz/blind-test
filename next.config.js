@@ -2,15 +2,7 @@
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
 const dotenv = require("dotenv")
-const path = require("path")
-
-// Resolve the path to the .env file
-const envPath = path.resolve(__dirname, "../env/local.env")
-
-// Load the .env file
-dotenv.config({ path: envPath })
-
-// dotenv.config({ path: path.join(__dirname, "env", "local.env") })
+dotenv.config({ path: "./env/local.env" })
 
 module.exports = {
     webpack: (config, { isServer }) => {
@@ -26,8 +18,6 @@ module.exports = {
     env: {
         COOKIE_NAME: process.env.COOKIE_NAME,
         COOKIE_PASSWORD: process.env.COOKIE_PASSWORD,
-        SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
-        SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
     },
 
     // Load .env.secrets file
