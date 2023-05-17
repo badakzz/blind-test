@@ -5,7 +5,7 @@ import { GetServerSideProps } from "next"
 import { withSession } from "../../../utils/helpers/ironSessionHelper"
 import {
     CreateOrJoinChatroom,
-    SendChatMessage,
+    ChatMessagesContainer,
     PlaylistSelectionModal,
 } from "../../../components"
 import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../lib/spotify/spotifyAPI"
@@ -55,6 +55,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [currentSongName, setCurrentSongName] = useState(null)
     const [currentArtistName, setCurrentArtistName] = useState(null)
 
+    console.log("userhere", user)
     useEffect(() => {
         if (playlistId) {
             const fetchTrackPreviews = async () => {
@@ -128,7 +129,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             })
 
             socket.on("scoreUpdated", ({ user, correctGuessType }) => {
-                const guessMessage = `${user} has correctly guessed the ${correctGuessType}!`
+                const guessMessage = `${user.username} has correctly guessed the ${correctGuessType}!`
                 console.log(guessMessage)
                 setMessages((currentMsg) => [
                     ...currentMsg,
@@ -264,7 +265,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 <button onClick={handleStartGame}>Start Game</button>
             )}
             {playlistId && gameStarted && (
-                <SendChatMessage
+                <ChatMessagesContainer
                     messages={messages}
                     users={users}
                     socket={socket}
