@@ -18,7 +18,6 @@ const SendChatMessage: React.FC<Props> = ({ messages, users, socket }) => {
         }
     }
 
-    console.log("messages", messages)
     return (
         <>
             <div>

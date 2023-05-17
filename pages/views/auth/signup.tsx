@@ -345,7 +345,6 @@ const Signup: React.FC = () => {
                 password: password,
             }),
         })
-        console.log("res", res)
 
         if (res.ok) {
             // Redirect to success page

@@ -4,8 +4,6 @@ import { SSRProvider } from "react-bootstrap"
 import Layout from "../components/Layout"
 
 const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
-    console.log("user", pageProps.user)
-
     return (
         <SSRProvider>
             <Layout user={pageProps.user}>

@@ -74,13 +74,14 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             setCurrentSongName(trackPreviews[currentSongIndex].name)
             setCurrentArtistName(trackPreviews[currentSongIndex].artist)
         }
+        console.log("currentSongIndex", currentSongIndex)
     }, [trackPreviews, currentSongIndex])
 
     useEffect(() => {
         if (socket) {
             // Clean up old event listeners
             socket.off("chatMessage")
-            socket.off("correctGuess")
+            socket.off("scoreUpdated")
 
             // Set up new event listeners
             socket.on("chatMessage", (msg) => {
@@ -128,6 +129,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
 
             socket.on("scoreUpdated", ({ user, correctGuessType }) => {
                 const guessMessage = `${user} has correctly guessed the ${correctGuessType}!`
+                console.log(guessMessage)
                 setMessages((currentMsg) => [
                     ...currentMsg,
                     { user: "System", text: guessMessage },
@@ -149,16 +151,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             )
             setCurrentChatroomId(chatroomId) // Set the current chatroom id
         })
-
-        // newSocket.on("correctGuess", ({ user, guessType }) => {
-        //     //manage the "feat", "ft" cases
-        //     console.log("received correct", user, guessType)
-        //     const guessMessage = `${user} has correctly guessed the ${guessType}!`
-        //     setMessages((currentMsg) => [
-        //         ...currentMsg,
-        //         { user: "System", text: guessMessage },
-        //     ])
-        // })
 
         newSocket.on("users", (users) => {
             setUsers(users)
@@ -221,15 +213,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 socket.emit("joinRoom", username, chatroomId)
             }
         }
-        console.log("chatroomUser", user)
     }
-
-    // const handleGenreSelection = async (genre) => {
-    //     const playlists = await getPlaylistsByGenre(genre)
-    //     // Display playlists in a modal or UI element and let the user select one
-    //     // For example, you could use the user's selection to set the playlist ID:
-    //     setPlaylistId(userSelectedPlaylistId)
-    // }
 
     const handleOpenPlaylistModal = () => {
         setShowPlaylistModal(true)
@@ -244,8 +228,12 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }
 
     const handleStartGame = () => {
-        console.log("tracks", trackPreviews)
-        startGame(setGameStarted, trackPreviews, startPlayback)
+        startGame(
+            setGameStarted,
+            trackPreviews,
+            startPlayback,
+            setCurrentSongIndex
+        )
         setGameStartTime(Date.now())
         setCurrentSongIndex(0)
     }

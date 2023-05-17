@@ -9,8 +9,6 @@ export const IRON_SESSION_CONFIG: SessionOptions = {
     },
 }
 
-console.log("session", IRON_SESSION_CONFIG)
-
 export function withSession(handler: any) {
     return withIronSession(handler, IRON_SESSION_CONFIG)
 }
