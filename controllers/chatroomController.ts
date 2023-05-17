@@ -1,4 +1,5 @@
 import Knex from "../models/knex"
+import { TABLE } from "../utils/constants"
 import { chatroomSchema } from "./validation/chatroomSchema"
 
 export const createChatroom = async (chatroom_id) => {
@@ -21,7 +22,7 @@ export const createChatroom = async (chatroom_id) => {
     }
 
     try {
-        const newChatroom = await Knex("chatrooms")
+        const newChatroom = await Knex(TABLE.CHATROOMS)
             .insert(chatroom)
             .returning("*")
             .then((rows) => rows[0])

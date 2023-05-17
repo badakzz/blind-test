@@ -1,4 +1,5 @@
 import Knex from "../models/knex"
+import { TABLE } from "../utils/constants"
 import { scoreboardSchema } from "./validation/scoreboardSchema"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
@@ -23,7 +24,7 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
     try {
         // Here, you'll need to replace 'knex' with your actual Knex.js instance.
         // You'll also need to replace 'currentChatroomId' with the actual ID of the current chatroom.
-        const updatedScore = await Knex("scoreboard")
+        const updatedScore = await Knex(TABLE.SCOREBOARD)
             .where({ chatroom_id: currentChatroomId, user_id: userId })
             .increment("score", points)
             .returning("*")

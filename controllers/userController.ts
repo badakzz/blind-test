@@ -5,6 +5,7 @@ import { userSignupSchema, userLoginSchema } from "./validation/userSchemas"
 import { isEmailValid } from "../utils/helpers/emailHelper"
 import { User } from "../utils/types"
 import { isFieldUnique } from "../utils/helpers/dbHelper"
+import { TABLE } from "../utils/constants"
 
 interface CreateUserResponse {
     message: string
@@ -61,7 +62,7 @@ export async function createUser({
         return
     }
 
-    const user = await Knex("users")
+    const user = await Knex(TABLE.USERS)
         .insert({
             user_name,
             email,
@@ -117,7 +118,7 @@ export async function authenticateUser(
     password: string
 ): Promise<User> {
     // Query the user by identifier only (either email or username)
-    const user = await Knex("users")
+    const user = await Knex(TABLE.USERS)
         .where(function () {
             if (isEmailValid(identifier)) {
                 this.where("email", identifier)
@@ -147,4 +148,16 @@ export async function authenticateUser(
         username: user.user_name,
         isActive: user.is_active,
     }
+}
+
+export function getUserById(id: number): Promise<{
+    id: number
+    name: string
+    [otherProperty: string]: unknown
+} | null> {
+    return Knex.first("id", "name")
+        .where({
+            id,
+        })
+        .from(TABLE.USERS)
 }

@@ -99,7 +99,6 @@ io.on("connection", async (socket) => {
         async (currentChatroomId, userId, points, correctGuessType) => {
             updateScoreboard(currentChatroomId, userId, points)
             socket.emit("scoreUpdated", {
-                chatroomId: currentChatroomId,
                 userId,
                 newScore: points,
                 correctGuessType,

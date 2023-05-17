@@ -55,7 +55,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [currentSongName, setCurrentSongName] = useState(null)
     const [currentArtistName, setCurrentArtistName] = useState(null)
 
-    console.log("userhere", user)
     useEffect(() => {
         if (playlistId) {
             const fetchTrackPreviews = async () => {
@@ -128,13 +127,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 }
             })
 
-            socket.on("scoreUpdated", ({ user, correctGuessType }) => {
+            socket.on("scoreUpdated", ({ correctGuessType }) => {
+                console.log("userhere", user)
                 const guessMessage = `${user.username} has correctly guessed the ${correctGuessType}!`
                 console.log(guessMessage)
-                setMessages((currentMsg) => [
-                    ...currentMsg,
-                    { user: "System", text: guessMessage },
-                ])
+                socket.emit("chatMessage", guessMessage)
             })
         }
     }, [socket, currentSongName, currentArtistName])
