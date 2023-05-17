@@ -100,23 +100,22 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 let correctGuess = false
                 let correctGuessType = ""
 
-                let nameCorrect = normalizedSongNameWords.some((songWord) =>
-                    normalizedMessageWords.some(
-                        (messageWord) =>
-                            calculateAnswerSimilarity(songWord, messageWord) >=
-                            minAccuracy
-                    )
+                let nameCorrect = normalizedSongNameWords.every(
+                    (songWord, i) =>
+                        normalizedMessageWords[i] !== undefined &&
+                        calculateAnswerSimilarity(
+                            songWord,
+                            normalizedMessageWords[i]
+                        ) >= minAccuracy
                 )
 
-                let artistCorrect = normalizedArtistNameWords.some(
-                    (artistWord) =>
-                        normalizedMessageWords.some(
-                            (messageWord) =>
-                                calculateAnswerSimilarity(
-                                    artistWord,
-                                    messageWord
-                                ) >= minAccuracy
-                        )
+                let artistCorrect = normalizedArtistNameWords.every(
+                    (artistWord, i) =>
+                        normalizedMessageWords[i] !== undefined &&
+                        calculateAnswerSimilarity(
+                            artistWord,
+                            normalizedMessageWords[i]
+                        ) >= minAccuracy
                 )
 
                 if (nameCorrect && !artistCorrect) {
