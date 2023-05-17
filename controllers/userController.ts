@@ -150,14 +150,14 @@ export async function authenticateUser(
     }
 }
 
-export function getUserById(id: number): Promise<{
+export async function getUserById(id: number): Promise<{
     id: number
     name: string
     [otherProperty: string]: unknown
 } | null> {
-    return Knex.first("id", "name")
+    return Knex.first("user_id", "user_name", "email", "is_active")
         .where({
-            id,
+            user_id: id,
         })
         .from(TABLE.USERS)
 }

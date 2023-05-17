@@ -4,8 +4,10 @@ import { Server } from "socket.io"
 import { saveChatMessage } from "../controllers/chatroomMessageController"
 import { createChatroom } from "../controllers/chatroomController"
 import { updateScoreboard } from "../controllers/scoreboardController"
+import { getUserById } from "../controllers/userController"
 import { generateUniqueId } from "../utils/helpers"
 import * as dotenv from "dotenv"
+
 dotenv.config({ path: "../env/local.env" })
 
 const app = express()
@@ -72,34 +74,41 @@ io.on("connection", async (socket) => {
     })
 
     socket.on("chatMessage", async (msg) => {
-        const user = users.find((u) => u.id === socket.id)
-        if (user) {
-            const senderId = socket.id
-            const chatroomId = user.chatroomId
-            console.log("User and chatroomId:", user, chatroomId)
-            try {
-                await saveChatMessage({
-                    content: msg,
-                    sender_id: senderId,
-                    created_at: new Date(),
-                    chatroom_id: chatroomId,
+        if (msg.author !== "System") {
+            const user = users.find((u) => u.id === socket.id)
+            if (user) {
+                const senderId = socket.id
+                const chatroomId = user.chatroomId
+                console.log("User and chatroomId:", user, chatroomId)
+                try {
+                    await saveChatMessage({
+                        content: msg,
+                        sender_id: senderId,
+                        created_at: new Date(),
+                        chatroom_id: chatroomId,
+                    })
+                } catch (error) {
+                    console.error("Error saving message:", error.message)
+                }
+                io.to(chatroomId).emit("chatMessage", {
+                    author: user.username,
+                    message: msg,
                 })
-            } catch (error) {
-                console.error("Error saving message:", error.message)
             }
-            io.to(chatroomId).emit("chatMessage", {
-                author: user.username,
-                message: msg,
-            })
+        } else {
+            // System message, don't save to DB but broadcast
+            console.log("SYSTEM")
+            io.emit("chatMessage", msg)
         }
     })
 
     socket.on(
         "updateScore",
         async (currentChatroomId, userId, points, correctGuessType) => {
+            let user = await getUserById(userId)
             updateScoreboard(currentChatroomId, userId, points)
             socket.emit("scoreUpdated", {
-                userId,
+                user,
                 newScore: points,
                 correctGuessType,
             })

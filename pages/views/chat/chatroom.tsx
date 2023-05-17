@@ -127,9 +127,12 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 }
             })
 
-            socket.on("scoreUpdated", ({ correctGuessType }) => {
+            socket.on("scoreUpdated", ({ user, correctGuessType }) => {
                 console.log("userhere", user)
-                const guessMessage = `${user.username} has correctly guessed the ${correctGuessType}!`
+                const guessMessage = {
+                    author: "System",
+                    message: `${user.user_name} has correctly guessed the ${correctGuessType}!`,
+                }
                 console.log(guessMessage)
                 socket.emit("chatMessage", guessMessage)
             })
