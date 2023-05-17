@@ -11,7 +11,9 @@ export const startGame = async (
 }
 
 export const startPlayback = (song, trackPreviews, setCurrentSongIndex) => {
+    console.log("song", song.artist)
     console.log("song", song.name)
+
     if (!song || !song.previewUrl) {
         console.error("Invalid song or song.previewUrl is not defined.")
         return
@@ -55,6 +57,7 @@ export const normalizeAnswer = (text) => {
     return text
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ \(feat\. .*\)/, "")
         .toLowerCase()
 }
 

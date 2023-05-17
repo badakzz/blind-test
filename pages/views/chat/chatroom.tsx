@@ -87,33 +87,54 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             socket.on("chatMessage", (msg) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
-                const normalizedMessage = normalizeAnswer(msg.message)
-
-                const nameSimilarity = calculateAnswerSimilarity(
-                    normalizedMessage,
-                    normalizeAnswer(currentSongName)
-                )
-
-                const artistSimilarity = calculateAnswerSimilarity(
-                    normalizedMessage,
-                    normalizeAnswer(currentArtistName)
-                )
+                const normalizedMessageWords = normalizeAnswer(
+                    msg.message
+                ).split(" ")
+                const normalizedSongNameWords =
+                    normalizeAnswer(currentSongName).split(" ")
+                const normalizedArtistNameWords =
+                    normalizeAnswer(currentArtistName).split(" ")
 
                 const minAccuracy = 0.9
                 let points = 0
                 let correctGuess = false
                 let correctGuessType = ""
 
-                if (nameSimilarity >= minAccuracy) {
+                let nameCorrect = normalizedSongNameWords.some((songWord) =>
+                    normalizedMessageWords.some(
+                        (messageWord) =>
+                            calculateAnswerSimilarity(songWord, messageWord) >=
+                            minAccuracy
+                    )
+                )
+
+                let artistCorrect = normalizedArtistNameWords.some(
+                    (artistWord) =>
+                        normalizedMessageWords.some(
+                            (messageWord) =>
+                                calculateAnswerSimilarity(
+                                    artistWord,
+                                    messageWord
+                                ) >= minAccuracy
+                        )
+                )
+
+                if (nameCorrect && !artistCorrect) {
                     points += 0.5
                     correctGuess = true
                     correctGuessType = "song name"
                 }
 
-                if (artistSimilarity >= minAccuracy) {
+                if (artistCorrect && !nameCorrect) {
                     points += 0.5
                     correctGuess = true
                     correctGuessType = "artist name"
+                }
+
+                if (artistCorrect && nameCorrect) {
+                    points += 1
+                    correctGuess = true
+                    correctGuessType = "artist and the song names"
                 }
 
                 if (points > 0) {
