@@ -54,6 +54,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [currentChatroomId, setCurrentChatroomId] = useState(null)
     const [currentSongName, setCurrentSongName] = useState(null)
     const [currentArtistName, setCurrentArtistName] = useState(null)
+    const [audio, setAudio] = useState(null)
 
     useEffect(() => {
         if (playlistId) {
@@ -160,6 +161,22 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }, [socket, currentSongName, currentArtistName])
 
     useEffect(() => {
+        if (socket) {
+            // ...
+
+            socket.on("gameOver", (finalScores, winnerId) => {
+                // Stop audio playback
+                audio && audio.pause()
+
+                // Display the final scores and the winner
+                console.log("Final scores:", finalScores)
+                console.log("Winner:", winnerId)
+                // Instead of logging, you would show a modal with this information
+            })
+        }
+    }, [socket])
+
+    useEffect(() => {
         const newSocket = io("http://localhost:3001")
         setSocket(newSocket)
 
@@ -249,14 +266,17 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }
 
     const handleStartGame = () => {
-        startGame(
+        const newAudio = startGame(
             setGameStarted,
             trackPreviews,
             startPlayback,
             setCurrentSongIndex
         )
-        setGameStartTime(Date.now())
-        setCurrentSongIndex(0)
+        if (newAudio) {
+            setAudio(newAudio)
+            setGameStartTime(Date.now())
+            setCurrentSongIndex(0)
+        }
     }
 
     return (

@@ -25,6 +25,7 @@ const PORT = process.env.NODE_SERVER_PORT || 3001
 
 const users = []
 const chatrooms = []
+let scores = {}
 
 io.on("connection", async (socket) => {
     console.log(`User connected with ID: ${socket.id}`)
@@ -112,6 +113,13 @@ io.on("connection", async (socket) => {
                 newScore: points,
                 correctGuessType,
             })
+            // Update the score for this user
+            scores[userId] = (scores[userId] || 0) + points
+
+            // If the user has reached the winning score, end the game
+            if (scores[userId] >= 1) {
+                io.to(currentChatroomId).emit("gameOver", scores, userId)
+            }
         }
     )
 })

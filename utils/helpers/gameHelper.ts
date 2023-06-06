@@ -6,8 +6,19 @@ export const startGame = async (
 ) => {
     setGameStarted(true)
 
-    // Play the first track
-    startPlayback(trackPreviews[0], trackPreviews, setCurrentSongIndex)
+    // Check if the first track and its previewUrl are not null or undefined
+    if (trackPreviews[0] && trackPreviews[0].previewUrl) {
+        // Play the first track
+        const newAudio = startPlayback(
+            trackPreviews[0],
+            trackPreviews,
+            setCurrentSongIndex
+        )
+        return newAudio
+    } else {
+        console.error("Invalid first track or track.previewUrl is not defined.")
+        return null
+    }
 }
 
 export const startPlayback = (song, trackPreviews, setCurrentSongIndex) => {
@@ -51,6 +62,7 @@ export const startPlayback = (song, trackPreviews, setCurrentSongIndex) => {
             return nextIndex
         })
     }
+    return audio // Return the Audio object
 }
 
 export const normalizeAnswer = (text) => {
