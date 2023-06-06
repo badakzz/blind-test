@@ -1,10 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import Knex from "../models/knex"
 import bcrypt from "bcryptjs"
-import { userSignupSchema, userLoginSchema } from "./validation/userSchema"
+import { userSignupSchema, userLoginSchema } from "./validation/userSchemas"
 import { isEmailValid } from "../utils/helpers/emailHelper"
 import { User } from "../utils/types"
 import { isFieldUnique } from "../utils/helpers/dbHelper"
+import { TABLE } from "../utils/constants"
 
 interface CreateUserResponse {
     message: string
@@ -34,7 +35,6 @@ export async function createUser({
         console.log(error)
         return
     }
-    console.log("call")
 
     const { user_name, email, password, permissions, is_active } = value
 
@@ -62,7 +62,7 @@ export async function createUser({
         return
     }
 
-    const user = await Knex("users")
+    const user = await Knex(TABLE.USERS)
         .insert({
             user_name,
             email,
@@ -118,7 +118,7 @@ export async function authenticateUser(
     password: string
 ): Promise<User> {
     // Query the user by identifier only (either email or username)
-    const user = await Knex("users")
+    const user = await Knex(TABLE.USERS)
         .where(function () {
             if (isEmailValid(identifier)) {
                 this.where("email", identifier)
@@ -128,7 +128,6 @@ export async function authenticateUser(
         })
         .first()
 
-    console.log("controller", user)
     if (!user) {
         // Handle error: identifier not found
         throw new Error("Invalid identifier")
@@ -149,4 +148,16 @@ export async function authenticateUser(
         username: user.user_name,
         isActive: user.is_active,
     }
+}
+
+export async function getUserById(id: number): Promise<{
+    id: number
+    name: string
+    [otherProperty: string]: unknown
+} | null> {
+    return Knex.first("user_id", "user_name", "email", "is_active")
+        .where({
+            user_id: id,
+        })
+        .from(TABLE.USERS)
 }

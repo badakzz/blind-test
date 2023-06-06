@@ -20,8 +20,6 @@ const Layout: React.FC<Props> = ({ user, children }) => {
     const router = useRouter()
 
     const handleLogout = async () => {
-        console.log("hi")
-
         await fetch("/api/v1/auth/logout", {
             method: "POST",
         })
@@ -32,7 +30,6 @@ const Layout: React.FC<Props> = ({ user, children }) => {
     }
 
     const imagePath = `${publicRuntimeConfig.imageFolder}/logo.png`
-    console.log("homeuser", user)
     return (
         <>
             <Navbar

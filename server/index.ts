@@ -3,11 +3,13 @@ import * as http from "http"
 import { Server } from "socket.io"
 import { saveChatMessage } from "../controllers/chatroomMessageController"
 import { createChatroom } from "../controllers/chatroomController"
+import { updateScoreboard } from "../controllers/scoreboardController"
+import { getUserById } from "../controllers/userController"
 import { generateUniqueId } from "../utils/helpers"
 import * as dotenv from "dotenv"
+
 dotenv.config({ path: "../env/local.env" })
 
-console.log("saveChatMessage", saveChatMessage)
 const app = express()
 const httpServer = http.createServer(app)
 const io = new Server(httpServer, {
@@ -23,6 +25,7 @@ const PORT = process.env.NODE_SERVER_PORT || 3001
 
 const users = []
 const chatrooms = []
+let scores = {}
 
 io.on("connection", async (socket) => {
     console.log(`User connected with ID: ${socket.id}`)
@@ -72,27 +75,53 @@ io.on("connection", async (socket) => {
     })
 
     socket.on("chatMessage", async (msg) => {
-        const user = users.find((u) => u.id === socket.id)
-        if (user) {
-            const senderId = socket.id
-            const chatroomId = user.chatroomId
-            console.log("User and chatroomId:", user, chatroomId)
-            try {
-                await saveChatMessage({
-                    content: msg,
-                    sender_id: senderId,
-                    created_at: new Date(),
-                    chatroom_id: chatroomId,
+        if (msg.author !== "System") {
+            const user = users.find((u) => u.id === socket.id)
+            if (user) {
+                const senderId = socket.id
+                const chatroomId = user.chatroomId
+                console.log("User and chatroomId:", user, chatroomId)
+                try {
+                    await saveChatMessage({
+                        content: msg,
+                        sender_id: senderId,
+                        created_at: new Date(),
+                        chatroom_id: chatroomId,
+                    })
+                } catch (error) {
+                    console.error("Error saving message:", error.message)
+                }
+                io.to(chatroomId).emit("chatMessage", {
+                    author: user.username,
+                    message: msg,
                 })
-            } catch (error) {
-                console.error("Error saving message:", error.message)
             }
-            io.to(chatroomId).emit("chatMessage", {
-                author: user.username,
-                message: msg,
-            })
+        } else {
+            // System message, don't save to DB but broadcast
+            console.log("SYSTEM")
+            io.emit("chatMessage", msg)
         }
     })
+
+    socket.on(
+        "updateScore",
+        async (currentChatroomId, userId, points, correctGuessType) => {
+            let user = await getUserById(userId)
+            updateScoreboard(currentChatroomId, userId, points)
+            socket.emit("scoreUpdated", {
+                user,
+                newScore: points,
+                correctGuessType,
+            })
+            // Update the score for this user
+            scores[userId] = (scores[userId] || 0) + points
+
+            // If the user has reached the winning score, end the game
+            if (scores[userId] >= 10) {
+                io.to(currentChatroomId).emit("gameOver", scores, userId)
+            }
+        }
+    )
 })
 
 httpServer.listen(PORT, () => {

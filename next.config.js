@@ -18,6 +18,8 @@ module.exports = {
     env: {
         COOKIE_NAME: process.env.COOKIE_NAME,
         COOKIE_PASSWORD: process.env.COOKIE_PASSWORD,
+        SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+        SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
     },
 
     // Load .env.secrets file

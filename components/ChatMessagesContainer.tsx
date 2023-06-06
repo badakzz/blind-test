@@ -8,7 +8,11 @@ type Props = {
     socket: Socket
 }
 
-const SendChatMessage: React.FC<Props> = ({ messages, users, socket }) => {
+const ChatMessagesContainer: React.FC<Props> = ({
+    messages,
+    users,
+    socket,
+}) => {
     const [message, setMessage] = useState("")
 
     const sendMessageHandler = () => {
@@ -18,7 +22,6 @@ const SendChatMessage: React.FC<Props> = ({ messages, users, socket }) => {
         }
     }
 
-    console.log("messages", messages)
     return (
         <>
             <div>
@@ -45,4 +48,4 @@ const SendChatMessage: React.FC<Props> = ({ messages, users, socket }) => {
     )
 }
 
-export default SendChatMessage
+export default ChatMessagesContainer

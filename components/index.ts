@@ -1,6 +1,7 @@
 export { default as Button } from "./Button"
+export { default as ChatMessagesContainer } from "./ChatMessagesContainer"
 export { default as CreateOrJoinChatroom } from "./CreateOrJoinChatroom"
 export { default as Input } from "./Input"
 export { default as Layout } from "./Layout"
-export { default as SendChatMessage } from "./SendChatMessage"
+export { default as PlaylistSelectionModal } from "./PlaylistSelectionModal"
 export { default as ToastProvider } from "./ToastProvider"

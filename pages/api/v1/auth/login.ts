@@ -13,10 +13,10 @@ const sessionConfig = {
     },
 }
 
-async function handler(
+const handler = async (
     req: NextApiRequest & { session: any },
     res: NextApiResponse
-) {
+) => {
     if (req.method !== "POST") {
         return res.status(405).end()
     }
@@ -25,12 +25,11 @@ async function handler(
 
     try {
         const user = await authenticateUser(identifier, password)
-        console.log("User:", user) // Add this line to debug the user object
         req.session.set("user", user)
         await req.session.save()
         res.status(200).json({ message: "Logged in successfully" })
     } catch (error) {
-        console.error("Error:", error.message) // Add this line to debug the error message
+        console.error("Error:", error.message)
         res.status(401).json({ message: error.message })
     }
 }
