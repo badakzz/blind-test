@@ -117,7 +117,7 @@ io.on("connection", async (socket) => {
             scores[userId] = (scores[userId] || 0) + points
 
             // If the user has reached the winning score, end the game
-            if (scores[userId] >= 1) {
+            if (scores[userId] >= 10) {
                 io.to(currentChatroomId).emit("gameOver", scores, userId)
             }
         }

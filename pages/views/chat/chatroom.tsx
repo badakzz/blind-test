@@ -50,13 +50,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [showPlaylistModal, setShowPlaylistModal] = useState(false)
     const [gameStarted, setGameStarted] = useState(false)
     const [currentSongIndex, setCurrentSongIndex] = useState(0)
-    const [gameStartTime, setGameStartTime] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(null)
     const [currentSongName, setCurrentSongName] = useState(null)
     const [currentArtistName, setCurrentArtistName] = useState(null)
-    const [audio, setAudio] = useState(null)
     const [isGameStopped, setIsGameStopped] = useState(false)
-    const audioRef = useRef(new Audio())
+    const audioRef = useRef(typeof window === "undefined" ? null : new Audio())
 
     useEffect(() => {
         if (playlistId) {
@@ -282,7 +280,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             audioRef.current
         )
         if (newAudio) {
-            setGameStartTime(Date.now())
             setCurrentSongIndex(0)
         }
     }
