@@ -2,7 +2,9 @@ export const startGame = async (
     setGameStarted,
     trackPreviews,
     startPlayback,
-    setCurrentSongIndex
+    setCurrentSongIndex,
+    isGameStopped,
+    audio
 ) => {
     setGameStarted(true)
 
@@ -12,7 +14,9 @@ export const startGame = async (
         const newAudio = startPlayback(
             trackPreviews[0],
             trackPreviews,
-            setCurrentSongIndex
+            setCurrentSongIndex,
+            isGameStopped,
+            audio
         )
         return newAudio
     } else {
@@ -21,7 +25,17 @@ export const startGame = async (
     }
 }
 
-export const startPlayback = (song, trackPreviews, setCurrentSongIndex) => {
+export const startPlayback = (
+    song,
+    trackPreviews,
+    setCurrentSongIndex,
+    isGameStopped,
+    audio
+) => {
+    if (isGameStopped) {
+        console.log("Playlist stopped")
+        return null // don't play the next song if the game is stopped
+    }
     console.log("song", song.artist)
     console.log("song", song.name)
 
@@ -29,8 +43,9 @@ export const startPlayback = (song, trackPreviews, setCurrentSongIndex) => {
         console.error("Invalid song or song.previewUrl is not defined.")
         return
     }
-    const audio = new Audio(song.previewUrl)
-    audio.volume = 0
+
+    audio.src = song.previewUrl
+    audio.volume = 0.2
     audio.play().catch((error) => {
         console.error("Failed to play the track:", error)
     })
@@ -52,7 +67,9 @@ export const startPlayback = (song, trackPreviews, setCurrentSongIndex) => {
                     startPlayback(
                         trackPreviews[nextIndex],
                         trackPreviews,
-                        setCurrentSongIndex
+                        setCurrentSongIndex,
+                        isGameStopped,
+                        audio
                     )
                 }, 5000)
             } else {

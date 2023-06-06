@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { io } from "socket.io-client"
 import { User } from "../../../utils/types/User"
 import { GetServerSideProps } from "next"
@@ -55,6 +55,8 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [currentSongName, setCurrentSongName] = useState(null)
     const [currentArtistName, setCurrentArtistName] = useState(null)
     const [audio, setAudio] = useState(null)
+    const [isGameStopped, setIsGameStopped] = useState(false)
+    const audioRef = useRef(new Audio())
 
     useEffect(() => {
         if (playlistId) {
@@ -162,11 +164,16 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
 
     useEffect(() => {
         if (socket) {
-            // ...
-
             socket.on("gameOver", (finalScores, winnerId) => {
-                // Stop audio playback
-                audio && audio.pause()
+                setIsGameStopped(true)
+
+                if (audioRef.current && audioRef.current instanceof Audio) {
+                    audioRef.current.pause()
+                } else {
+                    console.error(
+                        "Audio object is not defined or not an instance of Audio."
+                    )
+                }
 
                 // Display the final scores and the winner
                 console.log("Final scores:", finalScores)
@@ -270,10 +277,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             setGameStarted,
             trackPreviews,
             startPlayback,
-            setCurrentSongIndex
+            setCurrentSongIndex,
+            isGameStopped,
+            audioRef.current
         )
         if (newAudio) {
-            setAudio(newAudio)
             setGameStartTime(Date.now())
             setCurrentSongIndex(0)
         }
