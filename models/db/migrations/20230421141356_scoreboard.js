@@ -3,7 +3,7 @@ exports.up = async function (knex) {
         table.increments("score_id").primary()
         table.string("chatroom_id").notNullable()
         table.integer("user_id").unsigned().notNullable()
-        table.float("score").unsigned().defaultTo(0)
+        table.float("points").unsigned().defaultTo(0)
 
         table
             .foreign("chatroom_id")

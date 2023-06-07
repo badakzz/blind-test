@@ -14,7 +14,9 @@ import {
     startPlayback,
     calculateAnswerSimilarity,
     normalizeAnswer,
+    analyzeAnswerAndAttributeScore,
 } from "../../../utils/helpers/gameHelper"
+import Scoreboard from "../../../components/Scoreboard"
 
 interface ChatroomProps {
     user: User | null
@@ -50,7 +52,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [showPlaylistModal, setShowPlaylistModal] = useState(false)
     const [gameStarted, setGameStarted] = useState(false)
     const [currentSongIndex, setCurrentSongIndex] = useState(0)
-    const [currentChatroomId, setCurrentChatroomId] = useState(null)
+    const [currentChatroomId, setCurrentChatroomId] = useState<string>(null)
     const [currentSongName, setCurrentSongName] = useState(null)
     const [currentArtistName, setCurrentArtistName] = useState(null)
     const [isGameStopped, setIsGameStopped] = useState(false)
@@ -96,54 +98,18 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 const normalizedArtistNameWords =
                     normalizeAnswer(currentArtistName).split(" ")
 
-                const minAccuracy = 0.9
-                let points = 0
-                let correctGuess = false
-                let correctGuessType = ""
-
-                let nameCorrect = normalizedSongNameWords.every(
-                    (songWord, i) =>
-                        normalizedMessageWords[i] !== undefined &&
-                        calculateAnswerSimilarity(
-                            songWord,
-                            normalizedMessageWords[i]
-                        ) >= minAccuracy
+                const answer = analyzeAnswerAndAttributeScore(
+                    normalizedSongNameWords,
+                    normalizedMessageWords,
+                    normalizedArtistNameWords
                 )
-
-                let artistCorrect = normalizedArtistNameWords.every(
-                    (artistWord, i) =>
-                        normalizedMessageWords[i] !== undefined &&
-                        calculateAnswerSimilarity(
-                            artistWord,
-                            normalizedMessageWords[i]
-                        ) >= minAccuracy
-                )
-
-                if (nameCorrect && !artistCorrect) {
-                    points += 0.5
-                    correctGuess = true
-                    correctGuessType = "song name"
-                }
-
-                if (artistCorrect && !nameCorrect) {
-                    points += 0.5
-                    correctGuess = true
-                    correctGuessType = "artist name"
-                }
-
-                if (artistCorrect && nameCorrect) {
-                    points += 1
-                    correctGuess = true
-                    correctGuessType = "artist and the song names"
-                }
-
-                if (points > 0) {
+                if (answer.points > 0) {
                     socket.emit(
                         "updateScore",
                         currentChatroomId,
                         user.id,
-                        points,
-                        correctGuessType
+                        answer.points,
+                        answer.correctGuessType
                     )
                 }
             })
@@ -172,11 +138,8 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                         "Audio object is not defined or not an instance of Audio."
                     )
                 }
-
-                // Display the final scores and the winner
                 console.log("Final scores:", finalScores)
                 console.log("Winner:", winnerId)
-                // Instead of logging, you would show a modal with this information
             })
         }
     }, [socket])
@@ -316,6 +279,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                     socket={socket}
                 />
             )}
+            {isGameStopped && <Scoreboard chatroomId={currentChatroomId} />}
         </div>
     )
 }

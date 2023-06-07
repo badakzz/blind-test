@@ -111,13 +111,13 @@ io.on("connection", async (socket) => {
             socket.emit("scoreUpdated", {
                 user,
                 newScore: points,
-                correctGuessType,
+                correctGuessType, // pass correctGuessType here
             })
             // Update the score for this user
             scores[userId] = (scores[userId] || 0) + points
 
             // If the user has reached the winning score, end the game
-            if (scores[userId] >= 10) {
+            if (scores[userId] >= 1) {
                 io.to(currentChatroomId).emit("gameOver", scores, userId)
             }
         }

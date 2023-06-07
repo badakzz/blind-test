@@ -1,6 +1,7 @@
 import Knex from "../models/knex"
 import { TABLE } from "../utils/constants"
 import { scoreboardSchema } from "./validation/scoreboardSchema"
+import { Score } from "../utils/types"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
     const { error } = scoreboardSchema.validate(
@@ -22,11 +23,9 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
     }
 
     try {
-        // Here, you'll need to replace 'knex' with your actual Knex.js instance.
-        // You'll also need to replace 'currentChatroomId' with the actual ID of the current chatroom.
         const updatedScore = await Knex(TABLE.SCOREBOARD)
             .where({ chatroom_id: currentChatroomId, user_id: userId })
-            .increment("score", points)
+            .increment("points", points)
             .returning("*")
 
         if (!updatedScore || updatedScore.length === 0) {
@@ -34,10 +33,26 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
             await Knex("scoreboard").insert({
                 chatroom_id: currentChatroomId,
                 user_id: userId,
-                score: points,
+                points: points,
             })
         }
     } catch (err) {
         console.error("Failed to update scoreboard:", err)
     }
+}
+
+export const getScoresByChatroom = async (
+    chatroomId: string
+): Promise<Score[]> => {
+    const scores = await Knex(TABLE.SCOREBOARD)
+        .where({ chatroom_id: chatroomId })
+        .join(
+            TABLE.USERS,
+            `${TABLE.SCOREBOARD}.user_id`,
+            `${TABLE.USERS}.user_id`
+        )
+        .select(`${TABLE.USERS}.user_name`, `${TABLE.SCOREBOARD}.points`)
+        .orderBy(`${TABLE.SCOREBOARD}.points`, "desc")
+
+    return scores
 }
