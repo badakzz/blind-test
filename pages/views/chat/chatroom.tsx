@@ -90,18 +90,18 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             socket.on("chatMessage", (msg) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
-                const normalizedMessageWords = normalizeAnswer(
+                const normalizedMGuessWords = normalizeAnswer(
                     msg.message
                 ).split(" ")
-                const normalizedSongNameWords =
+                const normalizedParsedSongNameWords =
                     normalizeAnswer(currentSongName).split(" ")
-                const normalizedArtistNameWords =
+                const normalizedParsedArtistNameWords =
                     normalizeAnswer(currentArtistName).split(" ")
 
                 const answer = analyzeAnswerAndAttributeScore(
-                    normalizedSongNameWords,
-                    normalizedMessageWords,
-                    normalizedArtistNameWords
+                    normalizedParsedSongNameWords,
+                    normalizedMGuessWords,
+                    normalizedParsedArtistNameWords
                 )
                 if (answer.points > 0) {
                     socket.emit(

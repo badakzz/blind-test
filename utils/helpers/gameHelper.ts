@@ -89,9 +89,11 @@ export const normalizeAnswer = (text) => {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/ \(feat\. .*\)/, "")
+        .replace(/- Remix/, "")
+        .replace(/^\d+ - /, "")
+        .replace(/[^a-zA-Z0-9 ]/g, "")
         .toLowerCase()
 }
-
 export const calculateLevenshteinDistance = (a, b) => {
     const matrix = []
 
@@ -127,25 +129,25 @@ export const calculateAnswerSimilarity = (a, b) => {
 }
 
 export const analyzeAnswerAndAttributeScore = (
-    normalizedSongNameWords: string[],
-    normalizedMessageWords: string[],
-    normalizedArtistNameWords: string[]
+    normalizedParsedSongNameWords: string[],
+    normalizedMGuessWords: string[],
+    normalizedParsedArtistNameWords: string[]
 ): { points: number; correctGuessType: string } => {
     const minAccuracy = 0.9
     let points = 0
     let correctGuessType = ""
 
-    let nameCorrect = normalizedSongNameWords.every(
+    let nameCorrect = normalizedParsedSongNameWords.every(
         (songWord, i) =>
-            normalizedMessageWords[i] !== undefined &&
-            calculateAnswerSimilarity(songWord, normalizedMessageWords[i]) >=
+            normalizedMGuessWords[i] !== undefined &&
+            calculateAnswerSimilarity(songWord, normalizedMGuessWords[i]) >=
                 minAccuracy
     )
 
-    let artistCorrect = normalizedArtistNameWords.every(
+    let artistCorrect = normalizedParsedArtistNameWords.every(
         (artistWord, i) =>
-            normalizedMessageWords[i] !== undefined &&
-            calculateAnswerSimilarity(artistWord, normalizedMessageWords[i]) >=
+            normalizedMGuessWords[i] !== undefined &&
+            calculateAnswerSimilarity(artistWord, normalizedMGuessWords[i]) >=
                 minAccuracy
     )
 
