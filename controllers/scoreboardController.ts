@@ -23,11 +23,9 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
     }
 
     try {
-        // Here, you'll need to replace 'knex' with your actual Knex.js instance.
-        // You'll also need to replace 'currentChatroomId' with the actual ID of the current chatroom.
         const updatedScore = await Knex(TABLE.SCOREBOARD)
             .where({ chatroom_id: currentChatroomId, user_id: userId })
-            .increment("score", points)
+            .increment("points", points)
             .returning("*")
 
         if (!updatedScore || updatedScore.length === 0) {
@@ -35,7 +33,7 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
             await Knex("scoreboard").insert({
                 chatroom_id: currentChatroomId,
                 user_id: userId,
-                score: points,
+                points: points,
             })
         }
     } catch (err) {
@@ -44,7 +42,7 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
 }
 
 export const getScoresByChatroom = async (
-    chatroomId: number
+    chatroomId: string
 ): Promise<Score[]> => {
     const scores = await Knex(TABLE.SCOREBOARD)
         .where({ chatroom_id: chatroomId })

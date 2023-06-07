@@ -1,3 +1,5 @@
+import { Socket } from "socket.io-client"
+
 export const startGame = async (
     setGameStarted,
     trackPreviews,
@@ -122,4 +124,45 @@ export const calculateAnswerSimilarity = (a, b) => {
     const distance = calculateLevenshteinDistance(a, b)
     const longestLength = Math.max(a.length, b.length)
     return (longestLength - distance) / longestLength
+}
+
+export const analyzeAnswerAndAttributeScore = (
+    normalizedSongNameWords: string[],
+    normalizedMessageWords: string[],
+    normalizedArtistNameWords: string[]
+): { points: number; correctGuessType: string } => {
+    const minAccuracy = 0.9
+    let points = 0
+    let correctGuessType = ""
+
+    let nameCorrect = normalizedSongNameWords.every(
+        (songWord, i) =>
+            normalizedMessageWords[i] !== undefined &&
+            calculateAnswerSimilarity(songWord, normalizedMessageWords[i]) >=
+                minAccuracy
+    )
+
+    let artistCorrect = normalizedArtistNameWords.every(
+        (artistWord, i) =>
+            normalizedMessageWords[i] !== undefined &&
+            calculateAnswerSimilarity(artistWord, normalizedMessageWords[i]) >=
+                minAccuracy
+    )
+
+    if (nameCorrect && !artistCorrect) {
+        points += 0.5
+        correctGuessType = "song name"
+    }
+
+    if (artistCorrect && !nameCorrect) {
+        points += 0.5
+        correctGuessType = "artist name"
+    }
+
+    if (artistCorrect && nameCorrect) {
+        points += 1
+        correctGuessType = "artist and the song names"
+    }
+
+    return { points, correctGuessType }
 }

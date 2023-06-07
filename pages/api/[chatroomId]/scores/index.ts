@@ -1,6 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { withIronSession } from "next-iron-session"
-import { getScoresByChatroom } from "../../controllers/scoreboardController"
+import { getScoresByChatroom } from "../../../../controllers/scoreboardController"
+import Joi from "joi"
+
+const schemaQuery = Joi.object({
+    chatroomId: Joi.string().required(),
+})
 
 const handler = withIronSession(
     async (req: NextApiRequest & { session: any }, res: NextApiResponse) => {
@@ -13,13 +18,13 @@ const handler = withIronSession(
             return res.status(401).json({ message: "Unauthorized" })
         }
 
-        const { chatroomId } = req.query
-        if (!chatroomId) {
+        const sanitizedQuery = await schemaQuery.validateAsync(req.query)
+        if (!sanitizedQuery.chatroomId) {
             return res.status(400).json({ message: "Missing chatroom id" })
         }
 
         try {
-            const scores = await getScoresByChatroom(Number(chatroomId))
+            const scores = await getScoresByChatroom(sanitizedQuery.chatroomId)
             res.status(200).json(scores)
         } catch (error) {
             console.error("Error:", error.message)
@@ -30,7 +35,7 @@ const handler = withIronSession(
         cookieName: process.env.COOKIE_NAME,
         password: process.env.COOKIE_PASSWORD,
         cookieOptions: {
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.NODE_ENV === "development",
         },
     }
 )
