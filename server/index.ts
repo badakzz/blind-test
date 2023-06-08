@@ -3,9 +3,17 @@ import * as http from "http"
 import { Server } from "socket.io"
 import { saveChatMessage } from "../controllers/chatroomMessageController"
 import { createChatroom } from "../controllers/chatroomController"
-import { updateScoreboard } from "../controllers/scoreboardController"
+import {
+    getScoreByUserIdAndChatroomId,
+    getScoreListByChatroomId,
+    updateScoreboard,
+} from "../controllers/scoreboardController"
 import { getUserById } from "../controllers/userController"
 import { generateUniqueId } from "../utils/helpers"
+import {
+    checkIfGuessed,
+    recordGuess,
+} from "../controllers/scoreboardController"
 import * as dotenv from "dotenv"
 
 dotenv.config({ path: "../env/local.env" })
@@ -25,7 +33,6 @@ const PORT = process.env.NODE_SERVER_PORT || 3001
 
 const users = []
 const chatrooms = []
-let scores = {}
 
 io.on("connection", async (socket) => {
     console.log(`User connected with ID: ${socket.id}`)
@@ -105,19 +112,80 @@ io.on("connection", async (socket) => {
 
     socket.on(
         "updateScore",
-        async (currentChatroomId, userId, points, correctGuessType) => {
+        async (
+            currentChatroomId,
+            userId,
+            points,
+            correctGuessType,
+            songName,
+            artistName
+        ) => {
             let user = await getUserById(userId)
-            updateScoreboard(currentChatroomId, userId, points)
+
+            // Check for song name guess
+            if (correctGuessType === "song name") {
+                let hasGuessedSong = await checkIfGuessed(
+                    userId,
+                    currentChatroomId,
+                    songName,
+                    "song"
+                )
+
+                if (!hasGuessedSong) {
+                    console.log("Song guessed")
+                    // If the user hasn't been awarded points, update the scoreboard and record the guess
+                    await updateScoreboard(currentChatroomId, userId, points) // Update the score in database
+                    // Record the guess
+                    await recordGuess(
+                        userId,
+                        currentChatroomId,
+                        songName,
+                        "song"
+                    )
+                }
+            }
+
+            // Check for artist name guess
+            if (correctGuessType === "artist name") {
+                console.log("Artist guessed")
+                let hasGuessedArtist = await checkIfGuessed(
+                    userId,
+                    currentChatroomId,
+                    artistName,
+                    "artist"
+                )
+
+                if (!hasGuessedArtist) {
+                    // If the user hasn't been awarded points, update the scoreboard and record the guess
+                    await updateScoreboard(currentChatroomId, userId, points) // Update the score in database
+                    // Record the guess
+                    await recordGuess(
+                        userId,
+                        currentChatroomId,
+                        artistName,
+                        "artist"
+                    )
+                }
+            }
+
+            // Retrieve the updated score from the database
+            let totalScore = await getScoreByUserIdAndChatroomId(
+                userId,
+                currentChatroomId
+            )
+
+            console.log("totalScore", totalScore)
+            // Emit the score update
             socket.emit("scoreUpdated", {
                 user,
-                newScore: points,
-                correctGuessType, // pass correctGuessType here
+                newScore: totalScore,
+                correctGuessType,
             })
-            // Update the score for this user
-            scores[userId] = (scores[userId] || 0) + points
-
+            console.log("reach", totalScore)
             // If the user has reached the winning score, end the game
-            if (scores[userId] >= 1) {
+            if (totalScore >= 2) {
+                const scores = getScoreListByChatroomId(currentChatroomId)
+                console.log("game over", scores)
                 io.to(currentChatroomId).emit("gameOver", scores, userId)
             }
         }

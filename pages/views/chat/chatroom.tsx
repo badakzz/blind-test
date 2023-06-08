@@ -12,10 +12,9 @@ import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../lib/spotify
 import {
     startGame,
     startPlayback,
-    calculateAnswerSimilarity,
     normalizeAnswer,
     analyzeAnswerAndAttributeScore,
-} from "../../../utils/helpers/gameHelper"
+} from "../../../utils/helpers"
 import Scoreboard from "../../../components/Scoreboard"
 
 interface ChatroomProps {
@@ -90,26 +89,29 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             socket.on("chatMessage", (msg) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
-                const normalizedMessageWords = normalizeAnswer(
+                const normalizedMGuessWords = normalizeAnswer(
                     msg.message
                 ).split(" ")
-                const normalizedSongNameWords =
+                const normalizedParsedSongNameWords =
                     normalizeAnswer(currentSongName).split(" ")
-                const normalizedArtistNameWords =
+                const normalizedParsedArtistNameWords =
                     normalizeAnswer(currentArtistName).split(" ")
 
                 const answer = analyzeAnswerAndAttributeScore(
-                    normalizedSongNameWords,
-                    normalizedMessageWords,
-                    normalizedArtistNameWords
+                    normalizedParsedSongNameWords,
+                    normalizedMGuessWords,
+                    normalizedParsedArtistNameWords
                 )
                 if (answer.points > 0) {
+                    console.log("answer", answer)
                     socket.emit(
                         "updateScore",
                         currentChatroomId,
                         user.id,
                         answer.points,
-                        answer.correctGuessType
+                        answer.correctGuessType,
+                        currentSongName,
+                        currentArtistName
                     )
                 }
             })
