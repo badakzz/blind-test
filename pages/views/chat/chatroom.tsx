@@ -174,30 +174,35 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             socket.on("chatMessage", (msg) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
-                const normalizedMGuessWords = normalizeAnswer(
-                    msg.message
-                ).split(" ")
-                const normalizedParsedSongNameWords =
-                    normalizeAnswer(currentSongName).split(" ")
-                const normalizedParsedArtistNameWords =
-                    normalizeAnswer(currentArtistName).split(" ")
+                // Only analyze and attribute score for messages sent by the current user
+                if (msg.author === user.username) {
+                    const normalizedMGuessWords = normalizeAnswer(
+                        msg.message
+                    ).split(" ")
+                    const normalizedParsedSongNameWords =
+                        normalizeAnswer(currentSongName).split(" ")
+                    const normalizedParsedArtistNameWords =
+                        normalizeAnswer(currentArtistName).split(" ")
 
-                const answer = analyzeAnswerAndAttributeScore(
-                    normalizedParsedSongNameWords,
-                    normalizedMGuessWords,
-                    normalizedParsedArtistNameWords
-                )
-                if (answer.points > 0) {
-                    console.log("answer", answer)
-                    socket.emit(
-                        "updateScore",
-                        currentChatroomId,
+                    const answer = analyzeAnswerAndAttributeScore(
                         user.id,
-                        answer.points,
-                        answer.correctGuessType,
-                        currentSongName,
-                        currentArtistName
+                        normalizedParsedSongNameWords,
+                        normalizedMGuessWords,
+                        normalizedParsedArtistNameWords
                     )
+                    if (answer.points > 0) {
+                        console.log("answer", answer)
+                        console.log("client chatroom id", currentChatroomId)
+                        socket.emit(
+                            "updateScore",
+                            currentChatroomId,
+                            user.id,
+                            answer.points,
+                            answer.correctGuessType,
+                            currentSongName,
+                            currentArtistName
+                        )
+                    }
                 }
             })
 
@@ -215,7 +220,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 socket.off("scoreUpdated")
             }
         }
-    }, [socket, currentSongName, currentArtistName])
+    }, [socket, currentSongName, currentArtistName, user])
 
     useEffect(() => {
         if (socket) {
@@ -267,6 +272,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 setValidatedUsername(true)
                 setIsCreator(false) // Set isCreator to false
                 setIsGameStarting(true) // Set isGameStarting to true
+                setCurrentChatroomId(chatroomId)
                 socket.emit("joinRoom", username, chatroomId)
             }
         }

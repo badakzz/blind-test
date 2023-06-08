@@ -144,10 +144,11 @@ export const calculateAnswerSimilarity = (a, b) => {
 }
 
 export const analyzeAnswerAndAttributeScore = (
+    userId: number,
     normalizedParsedSongNameWords: string[],
     normalizedMGuessWords: string[],
     normalizedParsedArtistNameWords: string[]
-): { points: number; correctGuessType: string } => {
+): { points: number; correctGuessType: string; userId: number } => {
     const minAccuracy = 0.9
     let points = 0
     let correctGuessType = ""
@@ -181,5 +182,5 @@ export const analyzeAnswerAndAttributeScore = (
         correctGuessType = "artist and the song names"
     }
 
-    return { points, correctGuessType }
+    return { points, correctGuessType, userId }
 }

@@ -5,6 +5,11 @@ import { Score } from "../utils/types"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
     console.log("updateScorePoints", points)
+    if (typeof currentChatroomId !== "string") {
+        throw new Error(
+            `Invalid chatroom_id: ${currentChatroomId}. It should be a string.`
+        )
+    }
     const { error } = scoreboardSchema.validate(
         {
             user_id: userId,
@@ -86,10 +91,25 @@ export const getScoreListByChatroomId = async (
     return scores
 }
 
-export const checkIfGuessed = async (userId, chatroomId, guess, type) => {
+export const checkIfUserAlreadyGuessed = async (
+    userId,
+    chatroomId,
+    guess,
+    type
+) => {
     const record = await Knex("guessed_songs")
         .where("user_id", userId)
         .andWhere("chatroom_id", chatroomId)
+        .andWhere("guess", guess)
+        .andWhere("guess_type", type)
+        .first()
+
+    return !!record // returns true if a record exists, false otherwise
+}
+
+export const checkIfAnyUserAlreadyGuessed = async (chatroomId, guess, type) => {
+    const record = await Knex("guessed_songs")
+        .where("chatroom_id", chatroomId)
         .andWhere("guess", guess)
         .andWhere("guess_type", type)
         .first()

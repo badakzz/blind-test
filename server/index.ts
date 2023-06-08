@@ -4,16 +4,15 @@ import { Server } from "socket.io"
 import { saveChatMessage } from "../controllers/chatroomMessageController"
 import { createChatroom } from "../controllers/chatroomController"
 import {
+    checkIfAnyUserAlreadyGuessed,
+    checkIfUserAlreadyGuessed,
     getScoreByUserIdAndChatroomId,
     getScoreListByChatroomId,
     updateScoreboard,
+    recordGuess,
 } from "../controllers/scoreboardController"
 import { getUserById } from "../controllers/userController"
 import { generateUniqueId } from "../utils/helpers"
-import {
-    checkIfGuessed,
-    recordGuess,
-} from "../controllers/scoreboardController"
 import * as dotenv from "dotenv"
 
 dotenv.config({ path: "../env/local.env" })
@@ -114,15 +113,6 @@ io.on("connection", async (socket) => {
         socket.to(chatroomId).emit("gameStarted", trackPreviews) // emit trackPreviews
     })
 
-    // socket.on("trackPreviewsCreator", (trackPreviews) => {
-    //     console.log("trackPreview from creator", trackPreviews)
-    //     socket.emit("trackPreviewsServer", trackPreviews)
-    // })
-    // // socket.on("startGame", (chatroomId, trackPreviews) => {
-    // //     console.log("trackPreviews", trackPreviews)
-    // //     io.to(chatroomId).emit("gameStarted", { trackPreviews })
-    // // })
-
     socket.on(
         "updateScore",
         async (
@@ -134,50 +124,60 @@ io.on("connection", async (socket) => {
             artistName
         ) => {
             let user = await getUserById(userId)
+            console.log("server received chatroom id", currentChatroomId)
 
-            // Check for song name guess
-            if (correctGuessType === "song name") {
-                let hasGuessedSong = await checkIfGuessed(
-                    userId,
-                    currentChatroomId,
-                    songName,
-                    "song"
-                )
-
-                if (!hasGuessedSong) {
-                    console.log("Song guessed")
-                    // If the user hasn't been awarded points, update the scoreboard and record the guess
-                    await updateScoreboard(currentChatroomId, userId, points) // Update the score in database
-                    // Record the guess
-                    await recordGuess(
-                        userId,
+            // Only update the score if a guess was made
+            if (songName || artistName) {
+                // Check for song name guess
+                if (correctGuessType === "song name") {
+                    let alreadyGuessedSong = await checkIfAnyUserAlreadyGuessed(
                         currentChatroomId,
                         songName,
                         "song"
                     )
+
+                    if (!alreadyGuessedSong) {
+                        console.log("Song guessed")
+                        // If no one else has guessed correctly, update the scoreboard and record the guess
+                        await updateScoreboard(
+                            currentChatroomId,
+                            userId,
+                            points
+                        ) // Update the score in database
+                        // Record the guess
+                        await recordGuess(
+                            userId,
+                            currentChatroomId,
+                            songName,
+                            "song"
+                        )
+                    }
                 }
-            }
 
-            // Check for artist name guess
-            if (correctGuessType === "artist name") {
-                console.log("Artist guessed")
-                let hasGuessedArtist = await checkIfGuessed(
-                    userId,
-                    currentChatroomId,
-                    artistName,
-                    "artist"
-                )
+                // Check for artist name guess
+                if (correctGuessType === "artist name") {
+                    let alreadyGuessedArtist =
+                        await checkIfAnyUserAlreadyGuessed(
+                            currentChatroomId,
+                            artistName,
+                            "artist"
+                        )
 
-                if (!hasGuessedArtist) {
-                    // If the user hasn't been awarded points, update the scoreboard and record the guess
-                    await updateScoreboard(currentChatroomId, userId, points) // Update the score in database
-                    // Record the guess
-                    await recordGuess(
-                        userId,
-                        currentChatroomId,
-                        artistName,
-                        "artist"
-                    )
+                    if (!alreadyGuessedArtist) {
+                        // If no one else has guessed correctly, update the scoreboard and record the guess
+                        await updateScoreboard(
+                            currentChatroomId,
+                            userId,
+                            points
+                        ) // Update the score in database
+                        // Record the guess
+                        await recordGuess(
+                            userId,
+                            currentChatroomId,
+                            artistName,
+                            "artist"
+                        )
+                    }
                 }
             }
 
