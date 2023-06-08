@@ -75,6 +75,88 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }, [playlistId])
 
     useEffect(() => {
+        const newSocket = io("http://localhost:3001")
+        setSocket(newSocket)
+
+        newSocket.on("chatroomCreated", (chatroomId) => {
+            // Display the chatroom link when the room is created
+            const currentUrl = window.location.href
+            const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
+            alert(
+                `Chatroom created! Share this link with others to join: ${roomUrl}`
+            )
+            setCurrentChatroomId(chatroomId) // Set the current chatroom id
+        })
+
+        newSocket.on("users", (users) => {
+            setUsers(users)
+        })
+
+        return () => {
+            newSocket.off("chatroomCreated")
+            newSocket.disconnect()
+        }
+    }, [])
+
+    console.log("isGameStarting", isGameStarting)
+    useEffect(() => {
+        if (socket && isGameStarting) {
+            if (!isCreator) {
+                socket.on("gameStarted", (trackPreviews) => {
+                    console.log("Received gameStarted event")
+                    setTrackPreviews(trackPreviews)
+                    const newAudio = startGame(
+                        setGameStarted,
+                        trackPreviews,
+                        startPlayback,
+                        setCurrentSongIndex,
+                        isGameStopped,
+                        audioRef.current
+                    )
+                    if (newAudio) {
+                        setCurrentSongIndex(0)
+                    }
+                    setIsGameStarting(false)
+                })
+                return () => {
+                    socket.off("gameStarted")
+                }
+            } else {
+                setTrackPreviews(trackPreviews)
+                const newAudio = startGame(
+                    setGameStarted,
+                    trackPreviews,
+                    startPlayback,
+                    setCurrentSongIndex,
+                    isGameStopped,
+                    audioRef.current
+                )
+                if (newAudio) {
+                    setCurrentSongIndex(0)
+                }
+                setIsGameStarting(false)
+            }
+        }
+    }, [socket, isGameStarting])
+
+    // useEffect(() => {
+    //     console.log("1")
+    //     if (socket) {
+    //         console.log("2")
+    //         if (!isCreator && gameStarted) {
+    //             console.log("3")
+    //             socket.on("trackPreviewsServer", (trackPreviews) => {
+    //                 console.log("setting from server", trackPreviews)
+    //                 setTrackPreviews(trackPreviews)
+    //             })
+    //         }
+    //         return () => {
+    //             socket.off("trackPreviewsServer")
+    //         }
+    //     }
+    // }, [socket, isCreator, gameStarted])
+
+    useEffect(() => {
         if (trackPreviews && trackPreviews[currentSongIndex]) {
             setCurrentSongName(trackPreviews[currentSongIndex].name)
             setCurrentArtistName(trackPreviews[currentSongIndex].artist)
@@ -128,6 +210,10 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 console.log(guessMessage)
                 socket.emit("chatMessage", guessMessage)
             })
+            return () => {
+                socket.off("chatMessage")
+                socket.off("scoreUpdated")
+            }
         }
     }, [socket, currentSongName, currentArtistName])
 
@@ -146,43 +232,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 console.log("Final scores:", finalScores)
                 console.log("Winner:", winnerId)
             })
+            return () => {
+                socket.off("gameOver")
+            }
         }
     }, [socket])
-
-    useEffect(() => {
-        const newSocket = io("http://localhost:3001")
-        setSocket(newSocket)
-
-        newSocket.on("chatroomCreated", (chatroomId) => {
-            // Display the chatroom link when the room is created
-            const currentUrl = window.location.href
-            const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
-            alert(
-                `Chatroom created! Share this link with others to join: ${roomUrl}`
-            )
-            setCurrentChatroomId(chatroomId) // Set the current chatroom id
-        })
-
-        newSocket.on("users", (users) => {
-            setUsers(users)
-        })
-
-        return () => {
-            newSocket.disconnect()
-        }
-    }, [])
-
-    useEffect(() => {
-        if (socket && !isCreator && isGameStarting) {
-            socket.on("gameStarted", (receivedTrackPreviews) => {
-                console.log("Received gameStarted event")
-                setTrackPreviews(receivedTrackPreviews) // set trackPreviews
-                handleStartGame()
-                setIsGameStarting(false)
-                setGameStarted(true)
-            })
-        }
-    }, [socket, isGameStarting])
 
     const handleCreateRoom = (username) => {
         let finalUsername = username
@@ -234,17 +288,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         console.log("start")
         socket.emit("startGame", currentChatroomId, trackPreviews)
         setIsGameStarting(true)
-        const newAudio = startGame(
-            setGameStarted,
-            trackPreviews,
-            startPlayback,
-            setCurrentSongIndex,
-            isGameStopped,
-            audioRef.current
-        )
-        if (newAudio) {
-            setCurrentSongIndex(0)
-        }
     }
 
     return (
@@ -277,7 +320,14 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 </>
             )}
             {playlistId && !gameStarted && (
-                <button onClick={handleStartGame}>Start Game</button>
+                <button
+                    onClick={() => {
+                        handleStartGame()
+                        setGameStarted(true)
+                    }}
+                >
+                    Start Game
+                </button>
             )}
             {console.log({ gameStarted: gameStarted })}
             {gameStarted && (

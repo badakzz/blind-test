@@ -114,6 +114,15 @@ io.on("connection", async (socket) => {
         socket.to(chatroomId).emit("gameStarted", trackPreviews) // emit trackPreviews
     })
 
+    // socket.on("trackPreviewsCreator", (trackPreviews) => {
+    //     console.log("trackPreview from creator", trackPreviews)
+    //     socket.emit("trackPreviewsServer", trackPreviews)
+    // })
+    // // socket.on("startGame", (chatroomId, trackPreviews) => {
+    // //     console.log("trackPreviews", trackPreviews)
+    // //     io.to(chatroomId).emit("gameStarted", { trackPreviews })
+    // // })
+
     socket.on(
         "updateScore",
         async (
