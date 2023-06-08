@@ -7,3 +7,7 @@ add report functionnality, drop messages from chatroom when no report / report d
 add notifications
 add error toaster
 add modals for playlist selection / scoreboard at the end of the game + possibility to play again
+create seeds
+remove duplicates from playlists (skip) ?
+i can't lie doesn't work for song name
+Put It On Da Floor Again (feat. Cardi B)
