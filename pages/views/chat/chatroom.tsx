@@ -48,13 +48,16 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [validatedUsername, setValidatedUsername] = useState(false)
     const [playlistId, setPlaylistId] = useState(null)
     const [trackPreviews, setTrackPreviews] = useState([])
-    const [showPlaylistModal, setShowPlaylistModal] = useState(false)
-    const [gameStarted, setGameStarted] = useState(false)
-    const [currentSongIndex, setCurrentSongIndex] = useState(0)
+    const [showPlaylistModal, setShowPlaylistModal] = useState<boolean>(false)
+    const [gameStarted, setGameStarted] = useState<boolean>(false)
+    const [currentSongIndex, setCurrentSongIndex] = useState<number>(0)
     const [currentChatroomId, setCurrentChatroomId] = useState<string>(null)
-    const [currentSongName, setCurrentSongName] = useState(null)
-    const [currentArtistName, setCurrentArtistName] = useState(null)
-    const [isGameStopped, setIsGameStopped] = useState(false)
+    const [currentSongName, setCurrentSongName] = useState<string>(null)
+    const [currentArtistName, setCurrentArtistName] = useState<string>(null)
+    const [isGameStopped, setIsGameStopped] = useState<boolean>(false)
+    const [isCreator, setIsCreator] = useState<boolean>(false)
+    const [isGameStarting, setIsGameStarting] = useState<boolean>(false)
+
     const audioRef = useRef(typeof window === "undefined" ? null : new Audio())
 
     useEffect(() => {
@@ -170,27 +173,16 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }, [])
 
     useEffect(() => {
-        const newSocket = io("http://localhost:3001")
-        setSocket(newSocket)
-
-        newSocket.on("chatroomCreated", (chatroomId) => {
-            // Display the chatroom link when the room is created
-            const currentUrl = window.location.href
-            const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
-            alert(
-                `Chatroom created! Share this link with others to join: ${roomUrl}`
-            )
-            setCurrentChatroomId(chatroomId) // Set the current chatroom id
-        })
-
-        newSocket.on("users", (users) => {
-            setUsers(users)
-        })
-
-        return () => {
-            newSocket.disconnect()
+        if (socket && !isCreator && isGameStarting) {
+            socket.on("gameStarted", (receivedTrackPreviews) => {
+                console.log("Received gameStarted event")
+                setTrackPreviews(receivedTrackPreviews) // set trackPreviews
+                handleStartGame()
+                setIsGameStarting(false)
+                setGameStarted(true)
+            })
         }
-    }, [])
+    }, [socket, isGameStarting])
 
     const handleCreateRoom = (username) => {
         let finalUsername = username
@@ -204,6 +196,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         if (finalUsername) {
             socket.emit("createRoom", username)
             setValidatedUsername(true)
+            setIsCreator(true)
         }
     }
 
@@ -218,6 +211,8 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             }
             if (finalUsername) {
                 setValidatedUsername(true)
+                setIsCreator(false) // Set isCreator to false
+                setIsGameStarting(true) // Set isGameStarting to true
                 socket.emit("joinRoom", username, chatroomId)
             }
         }
@@ -236,6 +231,9 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }
 
     const handleStartGame = () => {
+        console.log("start")
+        socket.emit("startGame", currentChatroomId, trackPreviews)
+        setIsGameStarting(true)
         const newAudio = startGame(
             setGameStarted,
             trackPreviews,
@@ -261,20 +259,28 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             )}
             {validatedUsername && !playlistId && (
                 <>
-                    <button onClick={handleOpenPlaylistModal}>
-                        Select Playlist
-                    </button>
-                    <PlaylistSelectionModal
-                        show={showPlaylistModal}
-                        onPlaylistSelected={handlePlaylistSelected}
-                        onModalClose={handleClosePlaylistModal}
-                    />
+                    {isCreator ? (
+                        <>
+                            <button onClick={handleOpenPlaylistModal}>
+                                Select Playlist
+                            </button>
+
+                            <PlaylistSelectionModal
+                                show={showPlaylistModal}
+                                onPlaylistSelected={handlePlaylistSelected}
+                                onModalClose={handleClosePlaylistModal}
+                            />
+                        </>
+                    ) : (
+                        "Waiting for the host to launch the game"
+                    )}
                 </>
             )}
             {playlistId && !gameStarted && (
                 <button onClick={handleStartGame}>Start Game</button>
             )}
-            {playlistId && gameStarted && (
+            {console.log({ gameStarted: gameStarted })}
+            {gameStarted && (
                 <ChatMessagesContainer
                     messages={messages}
                     users={users}

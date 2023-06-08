@@ -110,6 +110,10 @@ io.on("connection", async (socket) => {
         }
     })
 
+    socket.on("startGame", (chatroomId, trackPreviews) => {
+        socket.to(chatroomId).emit("gameStarted", trackPreviews) // emit trackPreviews
+    })
+
     socket.on(
         "updateScore",
         async (
