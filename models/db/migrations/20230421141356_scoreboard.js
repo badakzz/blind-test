@@ -1,6 +1,5 @@
 exports.up = async function (knex) {
     return knex.schema.createTable("scoreboard", (table) => {
-        table.increments("score_id").primary()
         table.string("chatroom_id").notNullable()
         table.integer("user_id").unsigned().notNullable()
         table.float("points").unsigned().defaultTo(0)

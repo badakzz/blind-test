@@ -1,5 +1,3 @@
-import { Socket } from "socket.io-client"
-
 export const startGame = async (
     setGameStarted,
     trackPreviews,
@@ -11,6 +9,7 @@ export const startGame = async (
     setGameStarted(true)
 
     // Check if the first track and its previewUrl are not null or undefined
+    console.log("trackPreviews[0]", trackPreviews[0])
     if (trackPreviews[0] && trackPreviews[0].previewUrl) {
         // Play the first track
         const newAudio = startPlayback(
@@ -145,10 +144,11 @@ export const calculateAnswerSimilarity = (a, b) => {
 }
 
 export const analyzeAnswerAndAttributeScore = (
+    userId: number,
     normalizedParsedSongNameWords: string[],
     normalizedMGuessWords: string[],
     normalizedParsedArtistNameWords: string[]
-): { points: number; correctGuessType: string } => {
+): { points: number; correctGuessType: string; userId: number } => {
     const minAccuracy = 0.9
     let points = 0
     let correctGuessType = ""
@@ -182,5 +182,5 @@ export const analyzeAnswerAndAttributeScore = (
         correctGuessType = "artist and the song names"
     }
 
-    return { points, correctGuessType }
+    return { points, correctGuessType, userId }
 }
