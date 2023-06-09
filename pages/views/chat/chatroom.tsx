@@ -98,12 +98,10 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         }
     }, [])
 
-    console.log("isGameStarting", isGameStarting)
     useEffect(() => {
         if (socket && isGameStarting) {
             if (!isCreator) {
                 socket.on("gameStarted", (trackPreviews) => {
-                    console.log("Received gameStarted event")
                     setTrackPreviews(trackPreviews)
                     const newAudio = startGame(
                         setGameStarted,
@@ -139,29 +137,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         }
     }, [socket, isGameStarting])
 
-    // useEffect(() => {
-    //     console.log("1")
-    //     if (socket) {
-    //         console.log("2")
-    //         if (!isCreator && gameStarted) {
-    //             console.log("3")
-    //             socket.on("trackPreviewsServer", (trackPreviews) => {
-    //                 console.log("setting from server", trackPreviews)
-    //                 setTrackPreviews(trackPreviews)
-    //             })
-    //         }
-    //         return () => {
-    //             socket.off("trackPreviewsServer")
-    //         }
-    //     }
-    // }, [socket, isCreator, gameStarted])
-
     useEffect(() => {
         if (trackPreviews && trackPreviews[currentSongIndex]) {
             setCurrentSongName(trackPreviews[currentSongIndex].name)
             setCurrentArtistName(trackPreviews[currentSongIndex].artist)
         }
-        console.log("currentSongIndex", currentSongIndex)
     }, [trackPreviews, currentSongIndex])
 
     useEffect(() => {
@@ -191,8 +171,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                         normalizedParsedArtistNameWords
                     )
                     if (answer.points > 0) {
-                        console.log("answer", answer)
-                        console.log("client chatroom id", currentChatroomId)
                         socket.emit(
                             "updateScore",
                             currentChatroomId,
@@ -207,12 +185,10 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             })
 
             socket.on("scoreUpdated", ({ user, correctGuessType }) => {
-                console.log("userhere", user)
                 const guessMessage = {
                     author: "System",
                     message: `${user.user_name} has correctly guessed the ${correctGuessType}!`,
                 }
-                console.log(guessMessage)
                 socket.emit("chatMessage", guessMessage)
             })
             return () => {
@@ -291,7 +267,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }
 
     const handleStartGame = () => {
-        console.log("start")
         socket.emit("startGame", currentChatroomId, trackPreviews)
         setIsGameStarting(true)
     }
@@ -335,7 +310,6 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                     Start Game
                 </button>
             )}
-            {console.log({ gameStarted: gameStarted })}
             {gameStarted && (
                 <ChatMessagesContainer
                     messages={messages}

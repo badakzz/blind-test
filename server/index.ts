@@ -5,8 +5,7 @@ import { saveChatMessage } from "../controllers/chatroomMessageController"
 import { createChatroom } from "../controllers/chatroomController"
 import {
     checkIfAnyUserAlreadyGuessed,
-    checkIfUserAlreadyGuessed,
-    getScoreByUserIdAndChatroomId,
+    getMaxScoreForChatroomId,
     getScoreListByChatroomId,
     updateScoreboard,
     recordGuess,
@@ -182,21 +181,17 @@ io.on("connection", async (socket) => {
             }
 
             // Retrieve the updated score from the database
-            let totalScore = await getScoreByUserIdAndChatroomId(
-                userId,
-                currentChatroomId
-            )
+            let maxScore = await getMaxScoreForChatroomId(currentChatroomId)
 
-            console.log("totalScore", totalScore)
+            console.log("maxScore", maxScore)
             // Emit the score update
             socket.emit("scoreUpdated", {
                 user,
-                newScore: totalScore,
+                newScore: maxScore,
                 correctGuessType,
             })
-            console.log("reach", totalScore)
             // If the user has reached the winning score, end the game
-            if (totalScore >= 2) {
+            if (maxScore >= 2) {
                 const scores = getScoreListByChatroomId(currentChatroomId)
                 console.log("game over", scores)
                 io.to(currentChatroomId).emit("gameOver", scores, userId)

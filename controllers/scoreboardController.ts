@@ -63,20 +63,17 @@ export const getScoresByChatroom = async (
     return scores
 }
 
-export const getScoreByUserIdAndChatroomId = async (
-    userId: number,
+export const getMaxScoreForChatroomId = async (
     chatroomId: string
 ): Promise<number> => {
-    const score = await Knex(TABLE.SCOREBOARD)
+    const maxScore = await Knex(TABLE.SCOREBOARD)
         .where({
-            user_id: userId,
             chatroom_id: chatroomId,
         })
-        .select("points")
+        .max("points as max_points")
         .first()
 
-    console.log("score from db", score.points)
-    return score.points
+    return maxScore.max_points
 }
 
 export const getScoreListByChatroomId = async (
