@@ -1,10 +1,12 @@
+import { Track } from "../types"
+
 export const startGame = async (
-    setGameStarted,
-    trackPreviews,
+    setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
+    trackPreviews: Track[],
     startPlayback,
     setCurrentSongIndex,
     isGameStopped,
-    audio
+    audio: HTMLAudioElement
 ) => {
     setGameStarted(true)
 
@@ -27,8 +29,8 @@ export const startGame = async (
 }
 
 export const startPlayback = (
-    song,
-    trackPreviews,
+    song: Track,
+    trackPreviews: Track[],
     setCurrentSongIndex,
     isGameStopped,
     audio
@@ -83,7 +85,7 @@ export const startPlayback = (
     return audio // Return the Audio object
 }
 
-export function normalizeAnswer(answer) {
+export function normalizeAnswer(answer: string) {
     // Remove all non-alphanumeric characters (except for spaces and dashes)
     answer = answer.toLowerCase().replace(/[^\w\s-]/gi, "")
 
@@ -109,7 +111,7 @@ export function normalizeAnswer(answer) {
     return answer
 }
 
-export const calculateLevenshteinDistance = (a, b) => {
+export const calculateLevenshteinDistance = (a: string, b: string) => {
     const matrix = []
 
     for (let i = 0; i <= b.length; i++) {
@@ -137,7 +139,7 @@ export const calculateLevenshteinDistance = (a, b) => {
     return matrix[b.length][a.length]
 }
 
-export const calculateAnswerSimilarity = (a, b) => {
+export const calculateAnswerSimilarity = (a: string, b: string) => {
     const distance = calculateLevenshteinDistance(a, b)
     const longestLength = Math.max(a.length, b.length)
     return (longestLength - distance) / longestLength

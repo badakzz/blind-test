@@ -16,6 +16,7 @@ import {
     analyzeAnswerAndAttributeScore,
 } from "../../../utils/helpers"
 import Scoreboard from "../../../components/Scoreboard"
+import { Track } from "../../../utils/types"
 
 interface ChatroomProps {
     user: User | null
@@ -47,7 +48,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [users, setUsers] = useState([])
     const [validatedUsername, setValidatedUsername] = useState(false)
     const [playlistId, setPlaylistId] = useState(null)
-    const [trackPreviews, setTrackPreviews] = useState([])
+    const [trackPreviews, setTrackPreviews] = useState<Track[]>([])
     const [showPlaylistModal, setShowPlaylistModal] = useState<boolean>(false)
     const [gameStarted, setGameStarted] = useState<boolean>(false)
     const [currentSongIndex, setCurrentSongIndex] = useState<number>(0)
@@ -101,21 +102,30 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     useEffect(() => {
         if (socket && isGameStarting) {
             if (!isCreator) {
-                socket.on("gameStarted", (trackPreviews) => {
-                    setTrackPreviews(trackPreviews)
-                    const newAudio = startGame(
-                        setGameStarted,
-                        trackPreviews,
-                        startPlayback,
-                        setCurrentSongIndex,
-                        isGameStopped,
-                        audioRef.current
-                    )
-                    if (newAudio) {
-                        setCurrentSongIndex(0)
+                socket.on(
+                    "gameStarted",
+                    (
+                        trackPreviews: {
+                            artist: string
+                            name: string
+                            previewUrl: string
+                        }[]
+                    ) => {
+                        setTrackPreviews(trackPreviews)
+                        const newAudio = startGame(
+                            setGameStarted,
+                            trackPreviews,
+                            startPlayback,
+                            setCurrentSongIndex,
+                            isGameStopped,
+                            audioRef.current
+                        )
+                        if (newAudio) {
+                            setCurrentSongIndex(0)
+                        }
+                        setIsGameStarting(false)
                     }
-                    setIsGameStarting(false)
-                })
+                )
                 return () => {
                     socket.off("gameStarted")
                 }
