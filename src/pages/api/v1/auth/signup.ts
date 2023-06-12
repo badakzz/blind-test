@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { createUser } from "../../../../controllers/userController"
+import { createUser } from "../../../../controllers/services/userServices"
 import { applySession } from "next-iron-session"
 import { IRON_SESSION_CONFIG } from "../../../../utils/helpers/ironSessionHelper"
 

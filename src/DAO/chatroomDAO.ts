@@ -1,8 +1,10 @@
-import Knex from "../models/knex"
-import { TABLE } from "../utils/constants"
-import { chatroomSchema } from "./validation/chatroomSchema"
+import Knex from "../../../models/knex"
+import { TABLE } from "../../utils/constants"
+import { chatroomSchema } from "../validation/chatroomSchema"
 
-export const createChatroom = async (chatroom_id) => {
+export const createChatroom = async (
+    chatroom_id: string
+): Promise<Chatroom> => {
     const timestamp = new Date()
     const chatroom = {
         chatroom_id,
@@ -30,4 +32,5 @@ export const createChatroom = async (chatroom_id) => {
     } catch (err) {
         console.error("Failed to create the chatroom:", err)
     }
+    return newChatroom
 }

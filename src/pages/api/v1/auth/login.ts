@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { withIronSession } from "next-iron-session"
-import { authenticateUser } from "../../../../controllers/userController"
+import { authenticateUser } from "../../../../services/userServices"
 const dotenv = require("dotenv")
 
 dotenv.config({ path: "../../../../env/local.env" })
@@ -24,7 +24,7 @@ const handler = async (
     const { identifier, password } = req.body
 
     try {
-        const user = await authenticateUser(identifier, password)
+        const user = await loginUser(identifier, password)
         req.session.set("user", user)
         await req.session.save()
         res.status(200).json({ message: "Logged in successfully" })

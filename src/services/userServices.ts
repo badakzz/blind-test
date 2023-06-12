@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import Knex from "../models/knex"
+import Knex from "../../../models/knex"
 import bcrypt from "bcryptjs"
-import { userSignupSchema, userLoginSchema } from "./validation/userSchemas"
-import { isEmailValid } from "../utils/helpers/emailHelper"
-import { User } from "../utils/types"
-import { isFieldUnique } from "../utils/helpers/dbHelper"
-import { TABLE } from "../utils/constants"
+import { userSignupSchema, userLoginSchema } from "../validation/userSchemas"
+import { User } from "../../utils/types"
+import { isFieldUnique } from "../../utils/helpers/dbHelper"
+import { TABLE } from "../../utils/constants"
+import { getUserByUsernameOrEmail } from "../DAO/userDAO"
 
-interface CreateUserResponse {
+interface SignupResponse {
     message: string
 }
 
@@ -18,12 +18,12 @@ interface SessionData {
     }
 }
 
-export async function createUser({
+export async function signupUser({
     req,
     res,
 }: {
     req: NextApiRequest
-    res: NextApiResponse<CreateUserResponse>
+    res: NextApiResponse<SignupResponse>
 }): Promise<User> {
     const { error, value } = userSignupSchema.validate(req.body, {
         abortEarly: false,
@@ -77,8 +77,8 @@ export async function createUser({
     return {
         id: user.user_id,
         email: user.email,
-        username: user.user_name,
-        isActive: user.is_active,
+        user_name: user.user_name,
+        is_active: user.is_active,
     }
 }
 
@@ -87,7 +87,7 @@ export async function loginUser({
     res,
 }: {
     req: NextApiRequest & { session?: SessionData }
-    res: NextApiResponse<CreateUserResponse>
+    res: NextApiResponse<SignupResponse>
 }): Promise<void> {
     const { error, value } = userLoginSchema.validate(req.body, {
         abortEarly: false,
@@ -118,15 +118,7 @@ export async function authenticateUser(
     password: string
 ): Promise<User> {
     // Query the user by identifier only (either email or username)
-    const user = await Knex(TABLE.USERS)
-        .where(function () {
-            if (isEmailValid(identifier)) {
-                this.where("email", identifier)
-            } else {
-                this.where("user_name", identifier)
-            }
-        })
-        .first()
+    const user = await getUserByUsernameOrEmail(identifier)
 
     if (!user) {
         // Handle error: identifier not found
@@ -143,21 +135,9 @@ export async function authenticateUser(
 
     // Return the user object with the username
     return {
-        id: user.user_id,
+        id: user.id,
         email: user.email,
-        username: user.user_name,
-        isActive: user.is_active,
+        user_name: user.user_name,
+        is_active: user.is_active,
     }
-}
-
-export async function getUserById(id: number): Promise<{
-    id: number
-    name: string
-    [otherProperty: string]: unknown
-} | null> {
-    return Knex.first("user_id", "user_name", "email", "is_active")
-        .where({
-            user_id: id,
-        })
-        .from(TABLE.USERS)
 }

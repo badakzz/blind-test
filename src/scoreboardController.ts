@@ -1,4 +1,4 @@
-import Knex from "../models/knex"
+import Knex from "../../models/knex"
 import { TABLE } from "../utils/constants"
 import { scoreboardSchema } from "./validation/scoreboardSchema"
 import { Score } from "../utils/types"

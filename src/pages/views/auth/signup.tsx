@@ -1,9 +1,9 @@
 import Link from "next/link"
 import { Col, Container, Form, Row } from "react-bootstrap"
-import Button from "../../../components/Button"
+import Button from "../../../../components/Button"
 import { FaSave } from "react-icons/fa"
 import { Formik } from "formik"
-import { useToastContext } from "../../../components/ToastProvider"
+import { useToastContext } from "../../../../components/ToastProvider"
 import router, { useRouter } from "next/router"
 import axios from "axios"
 import {
@@ -12,7 +12,7 @@ import {
     getPasswordRuleLabel,
 } from "../../../utils/helpers"
 import { useState } from "react"
-import Layout from "../../../components/Layout"
+import Layout from "../../../../components/Layout"
 
 // const Register = () => {
 //     const router = useRouter()

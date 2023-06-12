@@ -7,15 +7,15 @@ import {
     CreateOrJoinChatroom,
     ChatMessagesContainer,
     PlaylistSelectionModal,
-} from "../../../components"
-import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../lib/spotify/spotifyAPI"
+} from "../../../../components"
+import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../../lib/spotify/spotifyAPI"
 import {
     startGame,
     startPlayback,
     normalizeAnswer,
     analyzeAnswerAndAttributeScore,
 } from "../../../utils/helpers"
-import Scoreboard from "../../../components/Scoreboard"
+import Scoreboard from "../../../../components/Scoreboard"
 import { Track } from "../../../utils/types"
 
 interface ChatroomProps {
