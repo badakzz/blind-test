@@ -1,17 +1,17 @@
 import express from "express"
 import * as http from "http"
 import { Server } from "socket.io"
-import { saveChatMessage } from "../services/chatMessageServices"
-import { createChatroom } from "../services/chatroomServices"
+import { saveChatMessage } from "../src/services/chatMessageServices"
+import { createChatroom } from "../src/services/chatroomServices"
 import {
     checkIfAnyUserAlreadyGuessed,
     getMaxScoreForChatroomId,
     getScoreListByChatroomId,
     updateScoreboard,
     recordGuess,
-} from "../../src/services/scoreboardServices"
-import { getUserById } from "../services/userServices"
-import { generateUniqueId } from "../utils/helpers"
+} from "../src/services/scoreboardServices"
+import { getUserById } from "../src/services/userServices"
+import { generateUniqueId } from "../src/utils/helpers"
 import * as dotenv from "dotenv"
 
 dotenv.config({ path: "../env/local.env" })

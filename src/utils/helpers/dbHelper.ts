@@ -1,4 +1,4 @@
-import Knex from "../../models/knex"
+import Knex from "../../../models/knex"
 
 export async function isFieldUnique(
     tableName: string,

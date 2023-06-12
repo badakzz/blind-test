@@ -33,7 +33,7 @@ export async function getScoreListByChatroomId(chatroomId): Promise<Score[]> {
         .orderBy(`${TABLE.SCOREBOARD}.points`, "desc")
 }
 
-export async function getMaxScoreForChatroomId(chatroomId): Promise<Score> {
+export async function getMaxScoreForChatroomId(chatroomId): Promise<number> {
     return Knex(TABLE.SCOREBOARD)
         .where({
             chatroom_id: chatroomId,

@@ -8,7 +8,7 @@ import {
     ChatMessagesContainer,
     PlaylistSelectionModal,
 } from "../../../components"
-import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../../lib/spotify/spotifyAPI"
+import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../api/spotifyAPI"
 import {
     startGame,
     startPlayback,
@@ -165,7 +165,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
                 // Only analyze and attribute score for messages sent by the current user
-                if (msg.author === user.username) {
+                if (msg.author === user.user_name) {
                     const normalizedMGuessWords = normalizeAnswer(
                         msg.message
                     ).split(" ")
@@ -233,7 +233,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         let finalUsername = username
 
         if (user) {
-            finalUsername = user.username
+            finalUsername = user.user_name
         } else if (!username) {
             finalUsername = `guest${users.length + 1}`
         }
@@ -250,7 +250,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             let finalUsername = username
 
             if (user) {
-                finalUsername = user.username
+                finalUsername = user.user_name
             } else if (!username) {
                 finalUsername = `guest${users.length + 1}`
             }

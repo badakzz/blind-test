@@ -42,7 +42,7 @@ const ChatMessagesContainer: React.FC<Props> = ({
             </div>
             <div>
                 Users online:
-                {users.map((user) => user.username).join(", ")}
+                {users.map((user) => user.user_name).join(", ")}
             </div>
         </>
     )
