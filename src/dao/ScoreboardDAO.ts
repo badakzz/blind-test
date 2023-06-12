@@ -1,6 +1,6 @@
-import Knex from "../../../models/knex"
-import { TABLE } from "../../utils/constants"
-import { Score } from "../../utils/types"
+import Knex from "../../models/knex"
+import { TABLE } from "../utils/constants"
+import { Score, Track } from "../utils/types"
 
 export async function incrementScore(
     userId,
@@ -21,7 +21,7 @@ export async function createScore(userId, chatroomId, points): Promise<Score> {
     })
 }
 
-export async function getScoreListByChatroom(chatroomId): Promise<Score[]> {
+export async function getScoreListByChatroomId(chatroomId): Promise<Score[]> {
     return Knex(TABLE.SCOREBOARD)
         .where({ chatroom_id: chatroomId })
         .join(
@@ -33,7 +33,7 @@ export async function getScoreListByChatroom(chatroomId): Promise<Score[]> {
         .orderBy(`${TABLE.SCOREBOARD}.points`, "desc")
 }
 
-export async function getMaxScore(chatroomId): Promise<Score> {
+export async function getMaxScoreForChatroomId(chatroomId): Promise<Score> {
     return Knex(TABLE.SCOREBOARD)
         .where({
             chatroom_id: chatroomId,
@@ -55,7 +55,7 @@ export async function checkIfGuessed(
     chatroomId,
     guess,
     type
-): Promise<Song> {
+): Promise<Track> {
     return Knex("guessed_songs")
         .where("user_id", userId)
         .andWhere("chatroom_id", chatroomId)
@@ -68,7 +68,7 @@ export async function checkIfAnyUserGuessed(
     chatroomId,
     guess,
     type
-): Promise<Song> {
+): Promise<Track> {
     return Knex("guessed_songs")
         .where("chatroom_id", chatroomId)
         .andWhere("guess", guess)
@@ -81,7 +81,7 @@ export async function recordGuess(
     chatroomId,
     guess,
     type
-): Promise<Song> {
+): Promise<Track> {
     return Knex("guessed_songs").insert({
         user_id: userId,
         chatroom_id: chatroomId,
@@ -89,3 +89,5 @@ export async function recordGuess(
         guess_type: type,
     })
 }
+
+// check return types

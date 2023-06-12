@@ -7,7 +7,7 @@ import {
     CreateOrJoinChatroom,
     ChatMessagesContainer,
     PlaylistSelectionModal,
-} from "../../../../components"
+} from "../../../components"
 import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../../../lib/spotify/spotifyAPI"
 import {
     startGame,
@@ -15,7 +15,7 @@ import {
     normalizeAnswer,
     analyzeAnswerAndAttributeScore,
 } from "../../../utils/helpers"
-import Scoreboard from "../../../../components/Scoreboard"
+import Scoreboard from "../../../components/Scoreboard"
 import { Track } from "../../../utils/types"
 
 interface ChatroomProps {

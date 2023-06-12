@@ -1,16 +1,16 @@
 import express from "express"
 import * as http from "http"
 import { Server } from "socket.io"
-import { saveChatMessage } from "../controllers/chatroomMessageController"
-import { createChatroom } from "../controllers/chatroomController"
+import { saveChatMessage } from "../services/chatMessageServices"
+import { createChatroom } from "../services/chatroomServices"
 import {
     checkIfAnyUserAlreadyGuessed,
     getMaxScoreForChatroomId,
     getScoreListByChatroomId,
     updateScoreboard,
     recordGuess,
-} from "../controllers/scoreboardController"
-import { getUserById } from "../controllers/userController"
+} from "../../src/services/scoreboardServices"
+import { getUserById } from "../services/userServices"
 import { generateUniqueId } from "../utils/helpers"
 import * as dotenv from "dotenv"
 

@@ -1,7 +1,7 @@
-import Knex from "../../../models/knex"
-import { TABLE } from "../../utils/constants"
-import { isEmailValid } from "../../utils/helpers"
-import { User } from "../../utils/types"
+import Knex from "../../models/knex"
+import { TABLE } from "../utils/constants"
+import { isEmailValid } from "../utils/helpers"
+import { User } from "../utils/types"
 
 export async function createUser(userData) {
     return await Knex(TABLE.USERS)

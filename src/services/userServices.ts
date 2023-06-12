@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import Knex from "../../../models/knex"
+import Knex from "../../models/knex"
 import bcrypt from "bcryptjs"
 import { userSignupSchema, userLoginSchema } from "../validation/userSchemas"
-import { User } from "../../utils/types"
-import { isFieldUnique } from "../../utils/helpers/dbHelper"
-import { TABLE } from "../../utils/constants"
-import { getUserByUsernameOrEmail } from "../DAO/userDAO"
+import { User } from "../utils/types"
+import { isFieldUnique } from "../utils/helpers/dbHelper"
+import { TABLE } from "../utils/constants"
+import * as UserDao from "../dao/UserDAO"
 
 interface SignupResponse {
     message: string
@@ -141,3 +141,9 @@ export async function authenticateUser(
         is_active: user.is_active,
     }
 }
+
+export const createUser = UserDao.createUser
+export const getUserById = UserDao.getUserById
+export const getUserByUsernameOrEmail = UserDao.getUserByUsernameOrEmail
+export const updateUser = UserDao.updateUser
+export const deleteUser = UserDao.deleteUser

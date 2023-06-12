@@ -1,5 +1,6 @@
-import Knex from "../../../models/knex"
-import { TABLE } from "../../utils/constants"
+import Knex from "../../models/knex"
+import { TABLE } from "../utils/constants"
+import { Chatroom } from "../utils/types/Chatroom"
 import { chatroomSchema } from "../validation/chatroomSchema"
 
 export const createChatroom = async (
@@ -29,8 +30,8 @@ export const createChatroom = async (
             .returning("*")
             .then((rows) => rows[0])
         console.log("New chatroom created:", newChatroom)
+        return newChatroom
     } catch (err) {
         console.error("Failed to create the chatroom:", err)
     }
-    return newChatroom
 }

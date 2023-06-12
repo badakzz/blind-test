@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import {
     getAvailableGenres,
     getPlaylistsByGenre,
-} from "../lib/spotify/spotifyAPI"
+} from "../../lib/spotify/spotifyAPI"
 
 interface PlaylistSelectionModalProps {
     show: boolean

@@ -1,5 +1,5 @@
 import { scoreboardSchema } from "../validation/scoreboardSchema"
-import * as ScoreboardDAO from "../DAO/scoreboardDAO"
+import * as ScoreboardDAO from "../dao/ScoreboardDAO"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
     console.log("updateScorePoints", points)
@@ -42,9 +42,8 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
     }
 }
 
-export const getScoresByChatroom = ScoreboardDAO.getScoreListByChatroom
-export const getMaxScoreForChatroomId = ScoreboardDAO.getMaxScore
-// export const getScoreListByChatroomId = ScoreboardDAO.getScoreList
+export const getScoreListByChatroomId = ScoreboardDAO.getScoreListByChatroomId
+export const getMaxScoreForChatroomId = ScoreboardDAO.getMaxScoreForChatroomId
 export const checkIfUserAlreadyGuessed = ScoreboardDAO.checkIfGuessed
 export const checkIfAnyUserAlreadyGuessed = ScoreboardDAO.checkIfAnyUserGuessed
 export const recordGuess = ScoreboardDAO.recordGuess

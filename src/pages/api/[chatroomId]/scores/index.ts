@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { withIronSession } from "next-iron-session"
-import { getScoresByChatroom } from "../../../../controllers/scoreboardController"
+import { getScoreListByChatroomId } from "../../../../services/scoreboardServices"
 import Joi from "joi"
 
 const schemaQuery = Joi.object({
@@ -24,7 +24,9 @@ const handler = withIronSession(
         }
 
         try {
-            const scores = await getScoresByChatroom(sanitizedQuery.chatroomId)
+            const scores = await getScoreListByChatroomId(
+                sanitizedQuery.chatroomId
+            )
             res.status(200).json(scores)
         } catch (error) {
             console.error("Error:", error.message)

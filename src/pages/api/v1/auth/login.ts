@@ -24,7 +24,7 @@ const handler = async (
     const { identifier, password } = req.body
 
     try {
-        const user = await loginUser(identifier, password)
+        const user = await authenticateUser(identifier, password)
         req.session.set("user", user)
         await req.session.save()
         res.status(200).json({ message: "Logged in successfully" })
