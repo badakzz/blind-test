@@ -74,7 +74,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             fetchTrackPreviews()
         }
     }, [playlistId])
-
+    console.log("chatUser", user)
     useEffect(() => {
         const newSocket = io("http://localhost:3001")
         setSocket(newSocket)
@@ -165,7 +165,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
                 // Only analyze and attribute score for messages sent by the current user
-                if (msg.author === user.user_name) {
+                console.log({
+                    msgusername: msg.user_name,
+                    userusername: user.user_name,
+                })
+                if (msg.user_name === user.user_name) {
                     const normalizedMGuessWords = normalizeAnswer(
                         msg.message
                     ).split(" ")
@@ -196,7 +200,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
 
             socket.on("scoreUpdated", ({ user, correctGuessType }) => {
                 const guessMessage = {
-                    author: "System",
+                    user_name: "System",
                     message: `${user.user_name} has correctly guessed the ${correctGuessType}!`,
                 }
                 socket.emit("chatMessage", guessMessage)

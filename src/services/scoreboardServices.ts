@@ -2,7 +2,7 @@ import { scoreboardSchema } from "../validation/scoreboardSchema"
 import * as ScoreboardDAO from "../dao/ScoreboardDAO"
 
 export const updateScoreboard = async (currentChatroomId, userId, points) => {
-    console.log("updateScorePoints", points)
+    console.log("updateScorePoints", userId, points)
     if (typeof currentChatroomId !== "string") {
         throw new Error(
             `Invalid chatroom_id: ${currentChatroomId}. It should be a string.`
@@ -37,6 +37,7 @@ export const updateScoreboard = async (currentChatroomId, userId, points) => {
             // If the user doesn't have a score entry yet, create one
             await ScoreboardDAO.createScore(userId, currentChatroomId, points)
         }
+        console.log("arabe")
     } catch (err) {
         console.error("Failed to update scoreboard:", err)
     }

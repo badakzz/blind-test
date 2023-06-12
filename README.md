@@ -11,3 +11,5 @@ create seeds
 remove duplicates from playlists (skip) ?
 i can't lie doesn't work for song name
 Put It On Da Floor Again (feat. Cardi B)
+
+replace usage of arrays by db calls in server

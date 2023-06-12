@@ -27,7 +27,7 @@ const ChatMessagesContainer: React.FC<Props> = ({
             <div>
                 {messages.map((msg, i) => (
                     <div key={i}>
-                        <span>{msg.author}: </span>
+                        <span>{msg.user_name}: </span>
                         <span>{msg.message}</span>
                     </div>
                 ))}

@@ -1,4 +1,4 @@
 export type Message = {
-    author: string
+    user_name: string
     message: string
 }

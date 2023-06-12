@@ -80,7 +80,7 @@ io.on("connection", async (socket) => {
     })
 
     socket.on("chatMessage", async (msg) => {
-        if (msg.author !== "System") {
+        if (msg.user_name !== "System") {
             const user = users.find((u) => u.id === socket.id)
             if (user) {
                 const senderId = socket.id
@@ -97,7 +97,7 @@ io.on("connection", async (socket) => {
                     console.error("Error saving message:", error.message)
                 }
                 io.to(chatroomId).emit("chatMessage", {
-                    author: user.username,
+                    user_name: user.user_name,
                     message: msg,
                 })
             }
@@ -123,6 +123,9 @@ io.on("connection", async (socket) => {
             artistName
         ) => {
             let user = await getUserById(userId)
+            console.log("uzeure", user)
+            console.log("uzerID", userId)
+
             console.log("server received chatroom id", currentChatroomId)
 
             // Only update the score if a guess was made
