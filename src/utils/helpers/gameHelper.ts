@@ -1,4 +1,4 @@
-import { Track } from "../types"
+import { Track } from '../types'
 
 export const startGame = async (
     setGameStarted: React.Dispatch<React.SetStateAction<boolean>>,
@@ -11,7 +11,6 @@ export const startGame = async (
     setGameStarted(true)
 
     // Check if the first track and its previewUrl are not null or undefined
-    console.log("trackPreviews[0]", trackPreviews[0])
     if (trackPreviews[0] && trackPreviews[0].previewUrl) {
         // Play the first track
         const newAudio = startPlayback(
@@ -23,7 +22,7 @@ export const startGame = async (
         )
         return newAudio
     } else {
-        console.error("Invalid first track or track.previewUrl is not defined.")
+        console.error('Invalid first track or track.previewUrl is not defined.')
         return null
     }
 }
@@ -36,25 +35,25 @@ export const startPlayback = (
     audio
 ) => {
     if (isGameStopped) {
-        console.log("Playlist stopped")
+        console.log('Playlist stopped')
         return null // don't play the next song if the game is stopped
     }
-    console.log("song", song.artist)
-    console.log("song", song.name)
+    console.log('artist', song.artist)
+    console.log('song', song.name)
 
     if (!song || !song.previewUrl) {
-        console.error("Invalid song or song.previewUrl is not defined.")
+        console.error('Invalid song or song.previewUrl is not defined.')
         return
     }
 
     audio.src = song.previewUrl
     audio.volume = 0.2
     audio.play().catch((error) => {
-        console.error("Failed to play the track:", error)
+        console.error('Failed to play the track:', error)
     })
     audio.onerror = (error) => {
         console.error(
-            "An error occurred while trying to play the audio:",
+            'An error occurred while trying to play the audio:',
             error
         )
     }
@@ -87,26 +86,26 @@ export const startPlayback = (
 
 export function normalizeAnswer(answer: string) {
     // Remove all non-alphanumeric characters (except for spaces and dashes)
-    answer = answer.toLowerCase().replace(/[^\w\s-]/gi, "")
+    answer = answer.toLowerCase().replace(/[^\w\s-]/gi, '')
 
     // Remove words in parentheses
-    answer = answer.replace(/ *\([^)]*\) */g, " ")
+    answer = answer.replace(/ *\([^)]*\) */g, ' ')
 
     // If there's a dash in the song name, only keep what's after the dash
-    if (answer.includes("-")) {
-        answer = answer.substring(answer.indexOf("-") + 1)
+    if (answer.includes('-')) {
+        answer = answer.substring(answer.indexOf('-') + 1)
     }
 
     // If the answer starts with a number, remove it (and the following space)
-    answer = answer.replace(/^\d+\s/, "")
+    answer = answer.replace(/^\d+\s/, '')
 
     // If there's a "feat" in the song name, only keep what's before "feat"
-    if (answer.includes("feat")) {
-        answer = answer.substring(0, answer.indexOf("feat"))
+    if (answer.includes('feat')) {
+        answer = answer.substring(0, answer.indexOf('feat'))
     }
 
     // Remove multiple spaces
-    answer = answer.replace(/\s+/g, " ").trim()
+    answer = answer.replace(/\s+/g, ' ').trim()
 
     return answer
 }
@@ -153,7 +152,7 @@ export const analyzeAnswerAndAttributeScore = (
 ): { points: number; correctGuessType: string; userId: number } => {
     const minAccuracy = 0.9
     let points = 0
-    let correctGuessType = ""
+    let correctGuessType = ''
 
     let nameCorrect = normalizedParsedSongNameWords.every(
         (songWord, i) =>
@@ -171,17 +170,17 @@ export const analyzeAnswerAndAttributeScore = (
 
     if (nameCorrect && !artistCorrect) {
         points += 0.5
-        correctGuessType = "song name"
+        correctGuessType = 'song name'
     }
 
     if (artistCorrect && !nameCorrect) {
         points += 0.5
-        correctGuessType = "artist name"
+        correctGuessType = 'artist name'
     }
 
     if (artistCorrect && nameCorrect) {
         points += 1
-        correctGuessType = "artist and the song names"
+        correctGuessType = 'artist and the song names'
     }
 
     return { points, correctGuessType, userId }

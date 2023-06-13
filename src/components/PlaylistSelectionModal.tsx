@@ -1,9 +1,6 @@
 // components/PlaylistSelectionModal.tsx
-import React, { useEffect, useState } from "react"
-import {
-    getAvailableGenres,
-    getPlaylistsByGenre,
-} from "../pages/api/spotifyAPI"
+import React, { useEffect, useState } from 'react'
+import { getAvailableGenres, getPlaylistsByGenre } from '../pages/api/spotify'
 
 interface PlaylistSelectionModalProps {
     show: boolean
@@ -63,7 +60,7 @@ const PlaylistSelectionModal: React.FC<PlaylistSelectionModalProps> = ({
     }
 
     return (
-        <div style={{ display: show ? "block" : "none" }}>
+        <div style={{ display: show ? 'block' : 'none' }}>
             <div>
                 <h2>Select a Playlist</h2>
                 <select onChange={handlePlaylistChange}>

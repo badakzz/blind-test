@@ -1,15 +1,15 @@
-import { NextApiRequest, NextApiResponse } from "next"
-import { withIronSession } from "next-iron-session"
-import { authenticateUser } from "../../../../services/userServices"
-const dotenv = require("dotenv")
+import { NextApiRequest, NextApiResponse } from 'next'
+import { withIronSession } from 'next-iron-session'
+import { authenticateUser } from '../../../../services/userServices'
+const dotenv = require('dotenv')
 
-dotenv.config({ path: "../../../../env/local.env" })
+dotenv.config({ path: '../../../../env/local.env' })
 
 const sessionConfig = {
     cookieName: process.env.COOKIE_NAME,
     password: process.env.COOKIE_PASSWORD,
     cookieOptions: {
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === 'production',
     },
 }
 
@@ -17,7 +17,7 @@ const handler = async (
     req: NextApiRequest & { session: any },
     res: NextApiResponse
 ) => {
-    if (req.method !== "POST") {
+    if (req.method !== 'POST') {
         return res.status(405).end()
     }
 
@@ -25,11 +25,11 @@ const handler = async (
 
     try {
         const user = await authenticateUser(identifier, password)
-        req.session.set("user", user)
+        req.session.set('user', user)
         await req.session.save()
-        res.status(200).json({ message: "Logged in successfully" })
+        res.status(200).json({ message: 'Logged in successfully' })
     } catch (error) {
-        console.error("Error:", error.message)
+        console.error('Error:', error.message)
         res.status(401).json({ message: error.message })
     }
 }

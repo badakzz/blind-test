@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useRef } from "react"
-import { io } from "socket.io-client"
-import { User } from "../../../utils/types/User"
-import { GetServerSideProps } from "next"
-import { withSession } from "../../../utils/helpers/ironSessionHelper"
+import React, { useState, useEffect, useRef } from 'react'
+import { io } from 'socket.io-client'
+import { User } from '../../../utils/types/User'
+import { GetServerSideProps } from 'next'
+import { withSession } from '../../../utils/helpers/ironSessionHelper'
 import {
     CreateOrJoinChatroom,
     ChatMessagesContainer,
     PlaylistSelectionModal,
-} from "../../../components"
-import { getMultipleRandomTrackPreviewsFromPlaylist } from "../../api/spotifyAPI"
+} from '../../../components'
+import { getMultipleRandomTrackPreviewsFromPlaylist } from '../../api/spotify'
 import {
     startGame,
     startPlayback,
     normalizeAnswer,
     analyzeAnswerAndAttributeScore,
-} from "../../../utils/helpers"
-import Scoreboard from "../../../components/Scoreboard"
-import { Track } from "../../../utils/types"
+} from '../../../utils/helpers'
+import Scoreboard from '../../../components/Scoreboard'
+import { Track } from '../../../utils/types'
 
 interface ChatroomProps {
     user: User | null
@@ -24,7 +24,7 @@ interface ChatroomProps {
 
 export const getServerSideProps: GetServerSideProps = withSession(
     async ({ req, res }) => {
-        const user = req.session.get("user")
+        const user = req.session.get('user')
 
         if (user) {
             return {
@@ -45,7 +45,8 @@ export const getServerSideProps: GetServerSideProps = withSession(
 const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [socket, setSocket] = useState(null)
     const [messages, setMessages] = useState([])
-    const [users, setUsers] = useState([])
+    const [connectedUsers, setConnectedUsers] = useState([])
+    // users state is used to generated a guest id
     const [validatedUsername, setValidatedUsername] = useState(false)
     const [playlistId, setPlaylistId] = useState(null)
     const [trackPreviews, setTrackPreviews] = useState<Track[]>([])
@@ -59,8 +60,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     const [isCreator, setIsCreator] = useState<boolean>(false)
     const [isGameStarting, setIsGameStarting] = useState<boolean>(false)
 
-    const audioRef = useRef(typeof window === "undefined" ? null : new Audio())
-
+    const audioRef = useRef(typeof window === 'undefined' ? null : new Audio())
     useEffect(() => {
         if (playlistId) {
             const fetchTrackPreviews = async () => {
@@ -74,12 +74,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             fetchTrackPreviews()
         }
     }, [playlistId])
-    console.log("chatUser", user)
     useEffect(() => {
-        const newSocket = io("http://localhost:3001")
+        const newSocket = io('http://localhost:3001')
         setSocket(newSocket)
 
-        newSocket.on("chatroomCreated", (chatroomId) => {
+        newSocket.on('chatroomCreated', (chatroomId) => {
             // Display the chatroom link when the room is created
             const currentUrl = window.location.href
             const roomUrl = `${currentUrl}?chatroomId=${chatroomId}`
@@ -89,12 +88,13 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             setCurrentChatroomId(chatroomId) // Set the current chatroom id
         })
 
-        newSocket.on("users", (users) => {
-            setUsers(users)
+        //needed?
+        newSocket.on('users', (users: User[]) => {
+            setConnectedUsers(users)
         })
 
         return () => {
-            newSocket.off("chatroomCreated")
+            newSocket.off('chatroomCreated')
             newSocket.disconnect()
         }
     }, [])
@@ -103,7 +103,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         if (socket && isGameStarting) {
             if (!isCreator) {
                 socket.on(
-                    "gameStarted",
+                    'gameStarted',
                     (
                         trackPreviews: {
                             artist: string
@@ -127,7 +127,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                     }
                 )
                 return () => {
-                    socket.off("gameStarted")
+                    socket.off('gameStarted')
                 }
             } else {
                 setTrackPreviews(trackPreviews)
@@ -157,38 +157,34 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     useEffect(() => {
         if (socket) {
             // Clean up old event listeners
-            socket.off("chatMessage")
-            socket.off("scoreUpdated")
+            socket.off('chatMessage')
+            socket.off('scoreUpdated')
 
             // Set up new event listeners
-            socket.on("chatMessage", (msg) => {
+            socket.on('chatMessage', (msg, userId) => {
                 setMessages((currentMsg) => [...currentMsg, msg])
 
                 // Only analyze and attribute score for messages sent by the current user
-                console.log({
-                    msgusername: msg.user_name,
-                    userusername: user.user_name,
-                })
-                if (msg.user_name === user.user_name) {
+                if (msg.user_id === user.user_id) {
                     const normalizedMGuessWords = normalizeAnswer(
                         msg.message
-                    ).split(" ")
+                    ).split(' ')
                     const normalizedParsedSongNameWords =
-                        normalizeAnswer(currentSongName).split(" ")
+                        normalizeAnswer(currentSongName).split(' ')
                     const normalizedParsedArtistNameWords =
-                        normalizeAnswer(currentArtistName).split(" ")
+                        normalizeAnswer(currentArtistName).split(' ')
 
                     const answer = analyzeAnswerAndAttributeScore(
-                        user.id,
+                        user.user_id,
                         normalizedParsedSongNameWords,
                         normalizedMGuessWords,
                         normalizedParsedArtistNameWords
                     )
                     if (answer.points > 0) {
                         socket.emit(
-                            "updateScore",
+                            'updateScore',
                             currentChatroomId,
-                            user.id,
+                            user.user_id,
                             answer.points,
                             answer.correctGuessType,
                             currentSongName,
@@ -198,37 +194,37 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                 }
             })
 
-            socket.on("scoreUpdated", ({ user, correctGuessType }) => {
+            socket.on('scoreUpdated', ({ user, correctGuessType }) => {
                 const guessMessage = {
-                    user_name: "System",
+                    user_name: 'System',
                     message: `${user.user_name} has correctly guessed the ${correctGuessType}!`,
                 }
-                socket.emit("chatMessage", guessMessage)
+                socket.emit('chatMessage', guessMessage, user.user_id)
             })
             return () => {
-                socket.off("chatMessage")
-                socket.off("scoreUpdated")
+                socket.off('chatMessage')
+                socket.off('scoreUpdated')
             }
         }
     }, [socket, currentSongName, currentArtistName, user])
 
     useEffect(() => {
         if (socket) {
-            socket.on("gameOver", (finalScores, winnerId) => {
+            socket.on('gameOver', (finalScores, winnerId) => {
                 setIsGameStopped(true)
 
                 if (audioRef.current && audioRef.current instanceof Audio) {
                     audioRef.current.pause()
                 } else {
                     console.error(
-                        "Audio object is not defined or not an instance of Audio."
+                        'Audio object is not defined or not an instance of Audio.'
                     )
                 }
-                console.log("Final scores:", finalScores)
-                console.log("Winner:", winnerId)
+                console.log('Final scores:', finalScores)
+                console.log('Winner:', winnerId)
             })
             return () => {
-                socket.off("gameOver")
+                socket.off('gameOver')
             }
         }
     }, [socket])
@@ -239,11 +235,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
         if (user) {
             finalUsername = user.user_name
         } else if (!username) {
-            finalUsername = `guest${users.length + 1}`
+            finalUsername = `guest${connectedUsers.length + 1}`
         }
 
         if (finalUsername) {
-            socket.emit("createRoom", username)
+            socket.emit('createRoom', username)
             setValidatedUsername(true)
             setIsCreator(true)
         }
@@ -256,14 +252,14 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             if (user) {
                 finalUsername = user.user_name
             } else if (!username) {
-                finalUsername = `guest${users.length + 1}`
+                finalUsername = `guest${connectedUsers.length + 1}`
             }
             if (finalUsername) {
                 setValidatedUsername(true)
                 setIsCreator(false) // Set isCreator to false
                 setIsGameStarting(true) // Set isGameStarting to true
                 setCurrentChatroomId(chatroomId)
-                socket.emit("joinRoom", username, chatroomId)
+                socket.emit('joinRoom', username, chatroomId)
             }
         }
     }
@@ -281,7 +277,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
     }
 
     const handleStartGame = () => {
-        socket.emit("startGame", currentChatroomId, trackPreviews)
+        socket.emit('startGame', currentChatroomId, trackPreviews)
         setIsGameStarting(true)
     }
 
@@ -310,7 +306,7 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
                             />
                         </>
                     ) : (
-                        "Waiting for the host to launch the game"
+                        'Waiting for the host to launch the game'
                     )}
                 </>
             )}
@@ -327,7 +323,8 @@ const Chatroom: React.FC<ChatroomProps> = ({ user }) => {
             {gameStarted && (
                 <ChatMessagesContainer
                     messages={messages}
-                    users={users}
+                    user={user}
+                    connectedUsers={connectedUsers}
                     socket={socket}
                 />
             )}

@@ -1,24 +1,26 @@
-import React, { useState } from "react"
-import { User, Message } from "../utils/types"
-import { Socket } from "socket.io-client"
+import React, { useState } from 'react'
+import { User, Message } from '../utils/types'
+import { Socket } from 'socket.io-client'
 
 type Props = {
     messages: Message[]
-    users: User[]
+    user: User
+    connectedUsers: User[]
     socket: Socket
 }
 
 const ChatMessagesContainer: React.FC<Props> = ({
     messages,
-    users,
+    connectedUsers,
+    user,
     socket,
 }) => {
-    const [message, setMessage] = useState("")
+    const [message, setMessage] = useState('')
 
     const sendMessageHandler = () => {
         if (message) {
-            socket.emit("chatMessage", message)
-            setMessage("")
+            socket.emit('chatMessage', message, user.user_id)
+            setMessage('')
         }
     }
 
@@ -42,7 +44,7 @@ const ChatMessagesContainer: React.FC<Props> = ({
             </div>
             <div>
                 Users online:
-                {users.map((user) => user.user_name).join(", ")}
+                {connectedUsers.map((user) => user.user_name).join(', ')}
             </div>
         </>
     )

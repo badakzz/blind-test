@@ -1,12 +1,12 @@
-import React, { ReactNode } from "react"
-import Link from "next/link"
-import Head from "next/head"
-import { Navbar, Container, Nav, NavDropdown, Image } from "react-bootstrap"
-import { FaSignOutAlt, FaPlayCircle } from "react-icons/fa"
-import getConfig from "next/config"
-import { GetServerSideProps } from "next"
-import { User } from "../utils/types/User"
-import { useRouter } from "next/router"
+import React, { ReactNode } from 'react'
+import Link from 'next/link'
+import Head from 'next/head'
+import { Navbar, Container, Nav, NavDropdown, Image } from 'react-bootstrap'
+import { FaSignOutAlt, FaPlayCircle } from 'react-icons/fa'
+import getConfig from 'next/config'
+import { GetServerSideProps } from 'next'
+import { User } from '../utils/types/User'
+import { useRouter } from 'next/router'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -18,12 +18,11 @@ type Props = {
 
 const Layout: React.FC<Props> = ({ user, children }) => {
     const router = useRouter()
-
     const handleLogout = async () => {
-        await fetch("/api/v1/auth/logout", {
-            method: "POST",
+        await fetch('/api/v1/auth/logout', {
+            method: 'POST',
         })
-        router.push("/")
+        router.push('/')
 
         // If you need to destroy the session on the client-side or navigate to another page, do it here.
         // For example, using Router.push("/") to navigate to the home page.

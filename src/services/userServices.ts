@@ -1,11 +1,11 @@
-import { NextApiRequest, NextApiResponse } from "next"
-import Knex from "../../models/knex"
-import bcrypt from "bcryptjs"
-import { userSignupSchema, userLoginSchema } from "../validation/userSchemas"
-import { User } from "../utils/types"
-import { isFieldUnique } from "../utils/helpers/dbHelper"
-import { TABLE } from "../utils/constants"
-import * as UserDao from "../dao/UserDAO"
+import { NextApiRequest, NextApiResponse } from 'next'
+import Knex from '../../models/knex'
+import bcrypt from 'bcryptjs'
+import { userSignupSchema, userLoginSchema } from '../validation/userSchemas'
+import { User } from '../utils/types'
+import { isFieldUnique } from '../utils/helpers/dbHelper'
+import { TABLE } from '../utils/constants'
+import * as UserDao from '../dao/UserDAO'
 
 interface SignupResponse {
     message: string
@@ -42,22 +42,22 @@ export async function signupUser({
 
     // Check if the username is unique
     const isUsernameUnique = await isFieldUnique(
-        "users",
-        "user_name",
+        'users',
+        'user_name',
         user_name
     )
     if (!isUsernameUnique) {
         res.status(400).json({
-            message: "Username is already in use",
+            message: 'Username is already in use',
         })
         return
     }
 
     // Check if the email is unique
-    const isEmailUnique = await isFieldUnique("users", "email", email)
+    const isEmailUnique = await isFieldUnique('users', 'email', email)
     if (!isEmailUnique) {
         res.status(400).json({
-            message: "Email is already in use",
+            message: 'Email is already in use',
         })
         return
     }
@@ -70,12 +70,12 @@ export async function signupUser({
             permissions: 1,
             is_active: true,
         })
-        .returning("*")
+        .returning('*')
         .then((rows) => rows[0])
 
     // Return the user object with the same structure as the authenticateUser function
     return {
-        id: user.user_id,
+        user_id: user.user_id,
         email: user.email,
         user_name: user.user_name,
         is_active: user.is_active,
@@ -106,8 +106,8 @@ export async function loginUser({
         const user = await authenticateUser(identifier, password)
 
         // Set the session cookie
-        req.session.user = { id: user.id, email: user.email }
-        res.status(200).json({ message: "Logged in successfully" })
+        req.session.user = { id: user.user_id, email: user.email }
+        res.status(200).json({ message: 'Logged in successfully' })
     } catch (error) {
         res.status(401).json({ message: error.message })
     }
@@ -122,7 +122,7 @@ export async function authenticateUser(
 
     if (!user) {
         // Handle error: identifier not found
-        throw new Error("Invalid identifier")
+        throw new Error('Invalid identifier')
     }
 
     // Compare the provided password with the stored hashed password
@@ -130,12 +130,12 @@ export async function authenticateUser(
 
     if (!isPasswordCorrect) {
         // Handle error: password is incorrect
-        throw new Error("Invalid password")
+        throw new Error('Invalid password')
     }
 
     // Return the user object with the username
     return {
-        id: user.id,
+        user_id: user.user_id,
         email: user.email,
         user_name: user.user_name,
         is_active: user.is_active,

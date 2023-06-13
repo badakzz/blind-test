@@ -1,7 +1,7 @@
-import Knex from "../../models/knex"
-import { TABLE } from "../utils/constants"
-import { Chatroom } from "../utils/types/Chatroom"
-import { chatroomSchema } from "../validation/chatroomSchema"
+import Knex from '../../models/knex'
+import { TABLE } from '../utils/constants'
+import { Chatroom } from '../utils/types/Chatroom'
+import { chatroomSchema } from '../validation/chatroomSchema'
 
 export const createChatroom = async (
     chatroom_id: string
@@ -19,7 +19,7 @@ export const createChatroom = async (
 
     if (error) {
         throw new Error(
-            "Validation failed: " +
+            'Validation failed: ' +
                 error.details.map((detail) => detail.message)
         )
     }
@@ -27,11 +27,11 @@ export const createChatroom = async (
     try {
         const newChatroom = await Knex(TABLE.CHATROOMS)
             .insert(chatroom)
-            .returning("*")
+            .returning('*')
             .then((rows) => rows[0])
-        console.log("New chatroom created:", newChatroom)
+        console.log('New chatroom created:', newChatroom)
         return newChatroom
     } catch (err) {
-        console.error("Failed to create the chatroom:", err)
+        console.error('Failed to create the chatroom:', err)
     }
 }

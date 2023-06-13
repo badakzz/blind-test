@@ -1,63 +1,65 @@
-import express from "express"
-import * as http from "http"
-import { Server } from "socket.io"
-import { saveChatMessage } from "../src/services/chatMessageServices"
-import { createChatroom } from "../src/services/chatroomServices"
+import express from 'express'
+import * as http from 'http'
+import { Server } from 'socket.io'
+import { saveChatMessage } from '../src/services/chatMessageServices'
+import { createChatroom } from '../src/services/chatroomServices'
 import {
     checkIfAnyUserAlreadyGuessed,
     getMaxScoreForChatroomId,
     getScoreListByChatroomId,
     updateScoreboard,
     recordGuess,
-} from "../src/services/scoreboardServices"
-import { getUserById } from "../src/services/userServices"
-import { generateUniqueId } from "../src/utils/helpers"
-import * as dotenv from "dotenv"
+} from '../src/services/scoreboardServices'
+import { getUserById } from '../src/services/userservices'
+import { generateUniqueId } from '../src/utils/helpers'
+import * as dotenv from 'dotenv'
+import { Message } from '../src/utils/types'
 
-dotenv.config({ path: "../env/local.env" })
+dotenv.config({ path: '../env/local.env' })
 
 const app = express()
 const httpServer = http.createServer(app)
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['my-custom-header'],
         credentials: true,
     },
 })
 
 const PORT = process.env.NODE_SERVER_PORT || 3001
 
-const users = []
-const chatrooms = []
+const connectedUsers: { id: string; username: string; chatroomId: string }[] =
+    []
+const activeChatrooms = []
 
-io.on("connection", async (socket) => {
+io.on('connection', async (socket) => {
     console.log(`User connected with ID: ${socket.id}`)
 
-    socket.on("createRoom", async (username) => {
+    socket.on('createRoom', async (username) => {
         const chatroomId = generateUniqueId()
         try {
             await createChatroom(chatroomId)
         } catch (error) {
-            console.error("Error creating chatroom:", error.message)
+            console.error('Error creating chatroom:', error.message)
         }
         socket.join(chatroomId)
         const user = { id: socket.id, username, chatroomId }
-        users.push(user)
-        io.to(chatroomId).emit("userConnected", user)
-        io.to(chatroomId).emit("users", users)
+        connectedUsers.push(user)
+        io.to(chatroomId).emit('userConnected', user)
+        io.to(chatroomId).emit('connectedUsers', connectedUsers)
         console.log(
             `User ${username} created and joined chatroom ${chatroomId}`
         )
-        chatrooms.push(chatroomId)
-        socket.emit("chatroomCreated", chatroomId)
+        activeChatrooms.push(chatroomId)
+        socket.emit('chatroomCreated', chatroomId)
     })
 
-    socket.on("joinRoom", (username, chatroomId) => {
+    socket.on('joinRoom', (username, chatroomId) => {
         const user = { id: socket.id, username, chatroomId }
-        users.push(user)
-        const chatroom = chatrooms.find((c) => c === chatroomId)
+        connectedUsers.push(user)
+        const chatroom = activeChatrooms.find((c) => c === chatroomId)
         if (chatroom) {
             socket.join(chatroomId)
             console.log(
@@ -68,78 +70,75 @@ io.on("connection", async (socket) => {
         }
     })
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
         console.log(`User disconnected with ID: ${socket.id}`)
-        const index = users.findIndex((u) => u.id === socket.id)
+        const index = connectedUsers.findIndex((u) => u.id === socket.id)
         if (index !== -1) {
-            const user = users.splice(index, 1)[0]
-            io.emit("userDisconnected", user)
-            io.emit("users", users)
+            const user = connectedUsers.splice(index, 1)[0]
+            io.emit('userDisconnected', user)
+            io.emit('connectedUsers', connectedUsers)
             console.log(`User ${user.username} left the chatroom`)
         }
     })
 
-    socket.on("chatMessage", async (msg) => {
-        if (msg.user_name !== "System") {
-            const user = users.find((u) => u.id === socket.id)
+    socket.on('chatMessage', async (msg: Message, userId: number) => {
+        if (msg.user_name !== 'System') {
+            const user = connectedUsers.find((u) => u.id === socket.id)
             if (user) {
-                const senderId = socket.id
                 const chatroomId = user.chatroomId
-                console.log("User and chatroomId:", user, chatroomId)
+                console.log('User and chatroomId:', user, chatroomId)
                 try {
+                    console.log({ userId: userId })
                     await saveChatMessage({
                         content: msg,
-                        sender_id: senderId,
+                        user_id: userId,
                         created_at: new Date(),
                         chatroom_id: chatroomId,
                     })
                 } catch (error) {
-                    console.error("Error saving message:", error.message)
+                    console.error('Error saving message:', error.message)
                 }
-                io.to(chatroomId).emit("chatMessage", {
-                    user_name: user.user_name,
+                io.to(chatroomId).emit('chatMessage', {
+                    user_name: user.username,
                     message: msg,
                 })
             }
         } else {
             // System message, don't save to DB but broadcast
-            console.log("SYSTEM")
-            io.emit("chatMessage", msg)
+            console.log('SYSTEM')
+            io.emit('chatMessage', msg)
         }
     })
 
-    socket.on("startGame", (chatroomId, trackPreviews) => {
-        socket.to(chatroomId).emit("gameStarted", trackPreviews) // emit trackPreviews
+    socket.on('startGame', (chatroomId, trackPreviews) => {
+        socket.to(chatroomId).emit('gameStarted', trackPreviews) // emit trackPreviews
     })
 
     socket.on(
-        "updateScore",
+        'updateScore',
         async (
-            currentChatroomId,
-            userId,
-            points,
-            correctGuessType,
-            songName,
-            artistName
+            currentChatroomId: string,
+            userId: number,
+            points: number,
+            correctGuessType: string,
+            songName: string,
+            artistName: string
         ) => {
             let user = await getUserById(userId)
-            console.log("uzeure", user)
-            console.log("uzerID", userId)
-
-            console.log("server received chatroom id", currentChatroomId)
+            console.log('server received chatroom id', currentChatroomId)
 
             // Only update the score if a guess was made
             if (songName || artistName) {
                 // Check for song name guess
-                if (correctGuessType === "song name") {
+                if (correctGuessType === 'song name') {
                     let alreadyGuessedSong = await checkIfAnyUserAlreadyGuessed(
                         currentChatroomId,
                         songName,
-                        "song"
+                        'song'
                     )
 
                     if (!alreadyGuessedSong) {
-                        console.log("Song guessed")
+                        console.log('Song guessed')
                         // If no one else has guessed correctly, update the scoreboard and record the guess
                         await updateScoreboard(
                             currentChatroomId,
@@ -151,18 +150,18 @@ io.on("connection", async (socket) => {
                             userId,
                             currentChatroomId,
                             songName,
-                            "song"
+                            'song'
                         )
                     }
                 }
 
                 // Check for artist name guess
-                if (correctGuessType === "artist name") {
+                if (correctGuessType === 'artist name') {
                     let alreadyGuessedArtist =
                         await checkIfAnyUserAlreadyGuessed(
                             currentChatroomId,
                             artistName,
-                            "artist"
+                            'artist'
                         )
 
                     if (!alreadyGuessedArtist) {
@@ -177,7 +176,7 @@ io.on("connection", async (socket) => {
                             userId,
                             currentChatroomId,
                             artistName,
-                            "artist"
+                            'artist'
                         )
                     }
                 }
@@ -186,9 +185,9 @@ io.on("connection", async (socket) => {
             // Retrieve the updated score from the database
             let maxScore = await getMaxScoreForChatroomId(currentChatroomId)
 
-            console.log("maxScore", maxScore)
+            console.log('maxScore', maxScore)
             // Emit the score update
-            socket.emit("scoreUpdated", {
+            socket.emit('scoreUpdated', {
                 user,
                 newScore: maxScore,
                 correctGuessType,
@@ -196,8 +195,8 @@ io.on("connection", async (socket) => {
             // If the user has reached the winning score, end the game
             if (maxScore >= 2) {
                 const scores = getScoreListByChatroomId(currentChatroomId)
-                console.log("game over", scores)
-                io.to(currentChatroomId).emit("gameOver", scores, userId)
+                console.log('game over', scores)
+                io.to(currentChatroomId).emit('gameOver', scores, userId)
             }
         }
     )
