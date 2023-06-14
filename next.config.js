@@ -1,8 +1,8 @@
 // const path = require('path')
 // const Config = require('/home/badakzz/blind-test/config/')
 // // const withTM = require('next-transpile-modules')
-const dotenv = require("dotenv")
-dotenv.config({ path: "./env/local.env" })
+const dotenv = require('dotenv')
+dotenv.config({ path: './env/local.env' })
 
 module.exports = {
     webpack: (config, { isServer }) => {
@@ -13,7 +13,7 @@ module.exports = {
     },
     publicRuntimeConfig: {
         // Define the environment variable with the path to your images folder
-        imageFolder: "/img",
+        imageFolder: '/img',
     },
     env: {
         COOKIE_NAME: process.env.COOKIE_NAME,

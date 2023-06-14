@@ -14,8 +14,13 @@
         "isolatedModules": true,
         "jsx": "preserve",
         "incremental": true,
-        "outDir": "dist"
+        "outDir": "build"
     },
-    "include": ["./next-env.d.ts", "**/*.ts", "**/*.tsx", "server/index.ts"],
+    "include": [
+        "./next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        "./packages/server/index.ts"
+    ],
     "exclude": ["node_modules"]
 }

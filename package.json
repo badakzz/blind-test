@@ -32,11 +32,14 @@
         "typescript": "^4.9.5"
     },
     "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "start:socket": "ts-node ./server/index.ts",
-        "build:ts": "tsc",
+        "dev": "next dev packages/src",
+        "build:ts:common": "tsc --project packages/common/tsconfig.json",
+        "build:ts:server": "tsc --project packages/server/tsconfig.json",
+        "build:ts": "yarn build:ts:common && yarn build:ts:server",
+        "build:next": "next build packages/src",
+        "build": "yarn build:ts && yarn build:next",
+        "start": "next start packages/src",
+        "start:socket": "ts-node packages/server/index.ts",
         "all": "concurrently \"yarn dev\" \"yarn start:socket\""
     },
     "devDependencies": {
