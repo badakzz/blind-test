@@ -12,7 +12,7 @@
         "express": "^4.18.2",
         "formik": "^2.2.9",
         "http": "^0.0.1-security",
-        "joi": "^17.8.3",
+        "joi": "^17.9.2",
         "jsonwebtoken": "^9.0.0",
         "knex": "^2.4.2",
         "next": "latest",
@@ -43,7 +43,7 @@
         "all": "concurrently \"yarn dev\" \"yarn start:socket\""
     },
     "devDependencies": {
-        "@types/node": "^12.12.21",
+        "@types/node": "^20.3.1",
         "@types/react": "^17.0.2",
         "@types/react-dom": "^17.0.1",
         "concurrently": "^7.6.0"
